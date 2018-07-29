@@ -2,7 +2,7 @@
 
 set -e
 
-bazel test //test/...
+bazel test --test_output=errors //test/...
 
 ./test/assembler/integration/cli.sh
 # TODO: fuzz test assembler

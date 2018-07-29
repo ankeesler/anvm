@@ -6,8 +6,11 @@
 #include <string>
 
 #include "log.h"
+#include "src/cpu.h"
 
 #define LOG(...) log_->Printf("parser", __FILE__, __LINE__, __VA_ARGS__)
+
+static bool ParseValue(const std::string& token, Word *value);
 
 const Parser::Result& Parser::Parse(std::istream& is) {
     LOG("Starting to parse input stream");
@@ -98,6 +101,13 @@ void Parser::ParseAndAddStatement(const std::string& line) {
             tokenStart += 2;
         }
 
+        const std::string&& realToken = token.substr(tokenStart);
+        Word value;
+        if (!ParseValue(realToken, &value)) {
+            LOG("ERROR: failed to parse value from token %s", realToken.c_str());
+            assert(0);
+        }
+
         enum Parser::Arg::Type type;
         if (isReference && isRegister) {
             type = Parser::Arg::Type::REGISTER_REFERENCE;
@@ -109,11 +119,29 @@ void Parser::ParseAndAddStatement(const std::string& line) {
             type = Parser::Arg::Type::LITERAL;
         }
 
-        a.SetToken(token.substr(tokenStart));
+        a.SetValue(value);
         a.SetType(type);
         statement.AddArg(a);
-        LOG("Added instruction arg token/type: %s/%d", a.Token().c_str(), a.Type());
+        LOG("Added instruction arg token/type: %d/%d", a.Value(), a.Type());
     }
 
     currentFunction_->AddStatement(statement);
+}
+
+static bool ParseValue(const std::string& token, Word *value) {
+    if (token == "sp") {
+        *value = SP;
+        return true;
+    }
+
+    try {
+        long long bigValue = std::stoll(token);
+        if (bigValue > static_cast<long long>(INT32_MAX)) {
+            return false;
+        }
+        *value = static_cast<Word>(bigValue);
+        return true;
+    } catch (const std::exception& e) {
+        return false;
+    }
 }

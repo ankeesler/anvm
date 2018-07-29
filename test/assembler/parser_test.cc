@@ -10,7 +10,7 @@
 class BasicParserTest : public testing::Test {
     public:
         BasicParserTest() {
-            TestLog log;
+            TestLog log(true);
             Parser p(&log);
             std::string text =
                 "tuna:\n"
@@ -24,7 +24,7 @@ class BasicParserTest : public testing::Test {
                 "  LOAD 1 %r0\n"
                 "  LOAD @%r2 1\n"
                 "  MULTIPLY\n"
-                "  LOADR 0 %rsp\n";
+                "  LOAD 0 %rsp\n";
             std::stringstream is(text, std::ios_base::in);
             result_ = p.Parse(is);
         }
@@ -84,7 +84,7 @@ TEST_F(BasicParserTest, StatementInstructions) {
     EXPECT_EQ(statements[0].Instruction(), "LOAD");
     EXPECT_EQ(statements[1].Instruction(), "LOAD");
     EXPECT_EQ(statements[2].Instruction(), "MULTIPLY");
-    EXPECT_EQ(statements[3].Instruction(), "LOADR");
+    EXPECT_EQ(statements[3].Instruction(), "LOAD");
 }
 
 TEST_F(BasicParserTest, StatementArgs) {
@@ -96,16 +96,16 @@ TEST_F(BasicParserTest, StatementArgs) {
     auto statements = function->Statements();
     auto args = statements[0].Args();
     EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Token(), "1");
-    EXPECT_EQ(args[1].Token(), "2");
+    EXPECT_EQ(args[0].Value(), 1);
+    EXPECT_EQ(args[1].Value(), 2);
 
     function = functionMap->at("fish");
     statements = function->Statements();
     args = statements[0].Args();
     EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Token(), "1");
+    EXPECT_EQ(args[0].Value(), 1);
     EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
-    EXPECT_EQ(args[1].Token(), "2");
+    EXPECT_EQ(args[1].Value(), 2);
     EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REFERENCE);
     args = statements[1].Args();
     EXPECT_EQ(args.size(), 0);
@@ -114,23 +114,23 @@ TEST_F(BasicParserTest, StatementArgs) {
     statements = function->Statements();
     args = statements[0].Args();
     EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Token(), "1");
+    EXPECT_EQ(args[0].Value(), 1);
     EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
-    EXPECT_EQ(args[1].Token(), "0");
+    EXPECT_EQ(args[1].Value(), 0);
     EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REGISTER);
     args = statements[1].Args();
     EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Token(), "2");
+    EXPECT_EQ(args[0].Value(), 2);
     EXPECT_EQ(args[0].Type(), Parser::Arg::Type::REGISTER_REFERENCE);
-    EXPECT_EQ(args[1].Token(), "1");
+    EXPECT_EQ(args[1].Value(), 1);
     EXPECT_EQ(args[1].Type(), Parser::Arg::Type::LITERAL);
     args = statements[2].Args();
     EXPECT_EQ(args.size(), 0);
     args = statements[3].Args();
     EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Token(), "0");
+    EXPECT_EQ(args[0].Value(), 0);
     EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
-    EXPECT_EQ(args[1].Token(), "sp");
+    EXPECT_EQ(args[1].Value(), -2);
     EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REGISTER);
 }
 

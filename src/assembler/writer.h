@@ -18,6 +18,7 @@ class Writer {
         const char *WriteFunction(const Parser::Function& function, std::vector<Word> *output); 
         const char *WriteStatement(const Parser::Statement& statement, std::vector<Word> *output);
         const char *WriteLoadStatement(const Parser::Statement& statement, std::vector<Word> *output);
+        const char *WriteStoreStatement(const Parser::Statement& statement, std::vector<Word> *output);
 
         Log *log_;
 };

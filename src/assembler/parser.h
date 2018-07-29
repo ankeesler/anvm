@@ -6,6 +6,7 @@
 #include <map>
 
 #include "log.h"
+#include "src/cpu.h"
 
 class Parser {
     public:
@@ -17,14 +18,14 @@ class Parser {
                     REFERENCE,
                     REGISTER_REFERENCE,
                 };
-                const std::string& Token() const { return token_; }
-                void SetToken(const std::string& token) { token_ = token; }
+                Word Value() const { return value_; }
+                void SetValue(Word value) { value_ = value; }
 
                 enum Type Type() const { return type_; }
                 void SetType(enum Type type) { type_ = type; }
 
             private:
-                std::string token_;
+                Word value_;
                 enum Type type_;
         };
 

@@ -8,7 +8,10 @@ cc_library(
     name = "parser_lib",
     srcs = ["parser.cc"],
     hdrs = ["parser.h"],
-    deps = [":log_lib"],
+    deps = [
+        ":log_lib",
+        "//src:core_lib",
+    ],
     visibility = ["//visibility:public"],
 )
 

@@ -25,7 +25,7 @@ class BasicWriteTest : public testing::Test {
                 "  LOAD 1 %r0\n"
                 "  LOAD %r2 1\n"
                 "  MULTIPLY\n"
-                "  LOADR 0 %rsp\n";
+                "  LOAD 0 %rsp\n";
             std::stringstream is(text, std::ios_base::in);
             Parser::Result result = p.Parse(is);
             EXPECT_FALSE(result.Error(nullptr));

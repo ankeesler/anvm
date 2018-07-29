@@ -18,7 +18,7 @@ Here is a BNFish description of the language.
 <statement>  ::= <instruction> <space> <args> <EOL>
 
 <args> ::= <arg> | <args> <space> <arg>
-<arg>  ::= <number> | "@" <number> | "%r" <number> | "@%r" <number>
+<arg>  ::= <number> | "@" <number> | "%r" <number> | "@%r" <number> | "%rsp" | "@%rsp"
 
 <name>         ::= <name-stuff> | <word> <name-stuff>
 <name-stuff>   ::= [A-Za-z0-9_]
