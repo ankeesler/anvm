@@ -177,3 +177,25 @@ TEST(ParserTest, PartialRegisterSyntax) {
     EXPECT_TRUE(result.Error(&errorString));
     EXPECT_STREQ(errorString.c_str(), "ERROR: expected register identifier at character 2 of token @%2");
 }
+
+TEST(ParserTest, NoColonFunction) {
+    TestLog log;
+    Parser p(&log);
+    std::string text =
+        "tuna:\n"
+        "  LOAD 1 2\n"
+        "\n"
+        "fish\n"
+        "  LOAD 1 2\n"
+        "\n"
+        "marlin:\n"
+        "  LOAD 1 %r0\n"
+        "  LOAD @%2 1\n"
+        "  MULTIPLY\n"
+        "  LOADR 0 %rsp\n";
+    std::stringstream is(text, std::ios_base::in);
+    const Parser::Result& result = p.Parse(is);
+    std::string errorString;
+    EXPECT_TRUE(result.Error(&errorString));
+    EXPECT_STREQ(errorString.c_str(), "ERROR: expected colon at end of declaration of function fish");
+}

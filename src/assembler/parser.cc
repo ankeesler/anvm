@@ -42,6 +42,12 @@ void Parser::ParseFunction(const std::string& line) {
         const std::string&& name = line.substr(0, line.size()-1);
         currentFunction_ = new Function();
         currentFunction_->SetName(name);
+    } else {
+        std::stringstream errorSs;
+        errorSs << "ERROR: expected colon at end of declaration of function " << line;
+        result_.SetError(errorSs.str());
+        LOG(errorSs.str().c_str());
+        return;
     }
 }
 
