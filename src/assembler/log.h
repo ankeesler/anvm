@@ -5,6 +5,8 @@
 
 class Log {
     public:
+        virtual ~Log() { }
+
         virtual void Printf(
                 const char *who,
                 const char *file,

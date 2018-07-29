@@ -51,12 +51,14 @@ parser_test_executable = test_env.Program(
 )
 
 assembler_env = Environment(
-    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -g -I."
+    # This is dumb that we include googletest...we should just switch to CMake...
+    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -I. -I../googletest/googletest/include",
 )
 assembler_executable = assembler_env.Program(
     target = "anasm",
     source = [
         "src/assembler/main.cc",
+        "src/assembler/parser.cc",
     ],
 )
 
