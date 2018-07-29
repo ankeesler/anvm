@@ -26,3 +26,5 @@ Here is a BNFish description of the language.
 <number>       ::= <number> | <number-stuff> <number>
 <space>        ::= " "
 ```
+
+When a binary file is written, the parsed functions are written in order of appearance in the .asm file.

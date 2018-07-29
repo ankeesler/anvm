@@ -41,6 +41,7 @@ class StdoutLog : public Log {
             printf("[anasm] [%s] [%s:%d] ", who, file, line);
             vprintf(format, list);
             printf("\n");
+            fflush(stdout);
             va_end(list);
         }
 };

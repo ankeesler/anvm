@@ -5,3 +5,4 @@ tags
 *tests
 *.swp
 anasm
+bazel-*

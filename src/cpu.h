@@ -6,6 +6,7 @@
 #include <iostream>
 
 typedef int32_t Word;
+#define MAX_WORD INT32_MAX
 
 #define STATUS_UNKNOWNI ((Word)1)
 #define STATUS_DIVZERO ((Word)2)

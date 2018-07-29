@@ -5,6 +5,8 @@
 #include <sstream>
 #include <string>
 
+#include "log.h"
+
 #define LOG(...) log_->Printf("parser", __FILE__, __LINE__, __VA_ARGS__)
 
 const Parser::Result& Parser::Parse(std::istream& is) {
