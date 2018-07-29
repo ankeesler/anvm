@@ -2,4 +2,5 @@
 *.o
 tags
 .sconsign.dblite
-tests
+*tests
+*.swp

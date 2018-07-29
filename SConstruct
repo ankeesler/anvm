@@ -1,5 +1,5 @@
 gtest_env = Environment(
-    CXXFLAGS = "-g -Wall -Werror -O0 -I../googletest/googletest -I../googletest/googletest/include",
+    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -I../googletest/googletest -I../googletest/googletest/include",
 )
 gtest_all_obj = gtest_env.Object(
     target = "third_party/gtest/gtest-all.o",
@@ -18,7 +18,7 @@ gtest_library = Library(
 )
 
 anvm_env = Environment(
-    CXXFLAGS = "-g -Wall -Werror -O0",
+    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0",
 )
 anvm_library = anvm_env.Library(
     target = "anvm",
@@ -30,7 +30,7 @@ anvm_library = anvm_env.Library(
 )
 
 test_env = Environment(
-    CXXFLAGS = "-g -Wall -Werror -O0 -I. -I../googletest/googletest/include",
+    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -I. -I../googletest/googletest/include",
 )
 test_executable = test_env.Program(
     target = "tests",
@@ -40,3 +40,23 @@ test_executable = test_env.Program(
         "test/test.cc",
     ],
 )
+
+parser_test_executable = test_env.Program(
+    target = "parser_tests",
+    source = [
+        gtest_library,
+        "src/assembler/parser.cc",
+        "test/assembler/parser_test.cc",
+    ],
+)
+
+assembler_env = Environment(
+    CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -g -I."
+)
+assembler_executable = assembler_env.Program(
+    target = "anasm",
+    source = [
+        "src/assembler/main.cc",
+    ],
+)
+
