@@ -23,3 +23,12 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+cc_binary(
+    name = "anasm",
+    srcs = ["main.cc"],
+    deps = [
+        ":parser_lib",
+        ":writer_lib",
+    ],
+)

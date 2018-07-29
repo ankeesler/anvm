@@ -32,9 +32,10 @@ expect_failure() {
     log "PASS"
 }
 
-scons anasm
+bazel build //src/assembler:anasm
+anasm="bazel-bin/src/assembler/anasm"
 
-expect_success ./anasm test/assembler/integration/fixtures/basic.asm
-expect_failure ./anasm test/assembler/integration/fixtures/bad.asm
-expect_failure ./anasm
-expect_failure ./anasm --debug --output foo.asm
+expect_success ./$anasm test/assembler/integration/fixtures/basic.asm
+expect_failure ./$anasm test/assembler/integration/fixtures/bad.asm
+expect_failure ./$anasm
+expect_failure ./$anasm --debug --output foo.asm

@@ -2,14 +2,7 @@
 
 set -e
 
-scons tests
-./tests
-
-scons parser_tests
-./parser_tests
-
-scons writer_tests
-./writer_tests
+bazel test //test/...
 
 ./test/assembler/integration/cli.sh
 # TODO: fuzz test assembler
