@@ -50,6 +50,15 @@ parser_test_executable = test_env.Program(
     ],
 )
 
+writer_test_executable = test_env.Program(
+    target = "writer_tests",
+    source = [
+        gtest_library,
+        "src/assembler/writer.cc",
+        "test/assembler/writer_test.cc",
+    ],
+)
+
 assembler_env = Environment(
     # This is dumb that we include googletest...we should just switch to CMake...
     CXXFLAGS = "--std=c++11 -g -Wall -Werror -O0 -I. -I../googletest/googletest/include",
@@ -59,6 +68,7 @@ assembler_executable = assembler_env.Program(
     source = [
         "src/assembler/main.cc",
         "src/assembler/parser.cc",
+        "src/assembler/writer.cc",
     ],
 )
 

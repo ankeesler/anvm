@@ -1,8 +1,8 @@
-#include "gtest/gtest.h"
-
 #include "src/cpu.h"
 #include "src/program.h"
 #include "src/system.h"
+
+#include "gtest/gtest.h"
 
 class SingleCPUTest : public testing::Test {
     public:
