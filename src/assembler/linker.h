@@ -7,18 +7,19 @@
 #include "log.h"
 #include "parser.h"
 #include "src/cpu.h"
+#include "src/program.h"
 
 class Linker {
     public:
         Linker(Log *log) : log_(log) { }
 
-        const char *Link(const Parser::Result& result, std::vector<Word> *output);
+        const char *Link(const Parser::Result& result, Program *program);
 
     private:
-        const char *WriteFunction(const Parser::Function& function, std::vector<Word> *output); 
-        const char *WriteStatement(const Parser::Statement& statement, std::vector<Word> *output);
-        const char *WriteLoadStatement(const Parser::Statement& statement, std::vector<Word> *output);
-        const char *WriteStoreStatement(const Parser::Statement& statement, std::vector<Word> *output);
+        const char *WriteFunction(const Parser::Function& function, Program *program);
+        const char *WriteStatement(const Parser::Statement& statement, Program *program);
+        const char *WriteLoadStatement(const Parser::Statement& statement, Program *program);
+        const char *WriteStoreStatement(const Parser::Statement& statement, Program *program);
 
         Log *log_;
 };

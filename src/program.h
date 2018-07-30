@@ -7,6 +7,8 @@
 
 class Program {
     public:
+        Program() { }
+
         Program(Word w, ...);
 
         const std::vector<Word>& Words() const { return is_; };

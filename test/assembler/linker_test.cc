@@ -34,16 +34,16 @@ class BasicWriteTest : public testing::Test {
 
             TestLog linkerLog(true);
             Linker l(&linkerLog);
-            const char *error = l.Link(result, &output_);
+            const char *error = l.Link(result, &program_);
             EXPECT_EQ(error, nullptr);
         }
 
     protected:
-        std::vector<Word> output_;
+        Program program_;
 };
 
 TEST_F(BasicWriteTest, Instructions) {
-    EXPECT_EQ(output_.size(), 21);
+    EXPECT_EQ(program_.Words().size(), 21);
 
     const Word expectedOutput[] = {
         ILOAD, 1, 2,
@@ -56,6 +56,6 @@ TEST_F(BasicWriteTest, Instructions) {
         ILOAD, 0, SP,
         IEXIT,
     };
-    EXPECT_THAT(output_, testing::ElementsAreArray(expectedOutput, 21));
+    EXPECT_THAT(program_.Words(), testing::ElementsAreArray(expectedOutput, 21));
     (void)expectedOutput;
 }
