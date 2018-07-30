@@ -26,6 +26,9 @@ const char *Writer::Write(const Parser::Result& result, std::vector<Word>* outpu
         }
     }
 
+    output->push_back(IEXIT);
+
+    LOG("Returning from writer");
     return nullptr;
 }
 

@@ -2,9 +2,11 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "src/assembler/writer.h"
 #include "src/assembler/parser.h"
+#include "src/cpu.h"
 #include "log.h"
 
 class BasicWriteTest : public testing::Test {
@@ -41,5 +43,19 @@ class BasicWriteTest : public testing::Test {
 };
 
 TEST_F(BasicWriteTest, Instructions) {
-    EXPECT_EQ(output_.size(), 20);
+    EXPECT_EQ(output_.size(), 21);
+
+    const Word expectedOutput[] = {
+        ILOAD, 1, 2,
+        ILOADM, 32, 3,
+        ISTORE, 1, 2,
+        IADD,
+        ILOAD, 1, 0,
+        ILOADR, 2, 1,
+        IMULTIPLY,
+        ILOAD, 0, SP,
+        IEXIT,
+    };
+    EXPECT_THAT(output_, testing::ElementsAreArray(expectedOutput, 21));
+    (void)expectedOutput;
 }

@@ -10,7 +10,8 @@ cc_test(
     srcs = ["parser_test.cc"],
     copts = ["-Iexternal/gtest/googletest/include"],
     deps = [
-        "@gtest//:main",
+        "@gtest//:gtest",
+        "@gtest//:gtest_main",
         "//src/assembler:parser_lib",
         ":log_lib",
     ],
@@ -19,9 +20,14 @@ cc_test(
 cc_test(
     name = "writer_test",
     srcs = ["writer_test.cc"],
-    copts = ["-Iexternal/gtest/googletest/include"],
+    copts = [
+        "-Iexternal/gtest/googletest/include",
+        "-Iexternal/gtest/googlemock/include",
+    ],
     deps = [
-        "@gtest//:main",
+        "@gtest//:gtest",
+        "@gtest//:gmock",
+        "@gtest//:gmock_main",
         "//src/assembler:parser_lib",
         "//src/assembler:writer_lib",
         ":log_lib",
