@@ -6,9 +6,9 @@
 #include <map>
 
 #include "parser.h"
-#include "log.h"
 #include "src/cpu.h"
 #include "src/program.h"
+#include "src/util/log.h"
 
 #define LOG(...) log_->Printf("linker", __FILE__, __LINE__, __VA_ARGS__)
 

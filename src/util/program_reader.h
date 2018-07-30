@@ -1,5 +1,5 @@
-#ifndef ANVM_ASSEMBLER_PROGRAM_READER_H_
-#define ANVM_ASSEMBLER_PROGRAM_READER_H_
+#ifndef ANVM_UTIL_PROGRAM_READER_H_
+#define ANVM_UTIL_PROGRAM_READER_H_
 
 #include <istream>
 
@@ -31,4 +31,4 @@ class ProgramReader {
         Error error_;
 };
 
-#endif // ANVM_ASSEMBLER_PROGRAM_READER_H_
+#endif // ANVM_UTIL_PROGRAM_READER_H_

@@ -4,10 +4,10 @@
 #include <ostream>
 #include <vector>
 
-#include "log.h"
 #include "parser.h"
 #include "src/cpu.h"
 #include "src/program.h"
+#include "src/util/log.h"
 
 class Linker {
     public:

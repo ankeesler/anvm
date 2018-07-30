@@ -5,8 +5,8 @@
 #include <vector>
 #include <map>
 
-#include "log.h"
 #include "src/cpu.h"
+#include "src/util/log.h"
 
 class Parser {
     public:

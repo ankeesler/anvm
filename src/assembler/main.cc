@@ -4,8 +4,9 @@
 
 #include "parser.h"
 #include "linker.h"
-#include "program_writer.h"
 #include "src/program.h"
+#include "src/util/program_writer.h"
+#include "src/util/log.h"
 
 static bool ParseFlags(int argc, char *argv[]);
 static void PrintUsage();

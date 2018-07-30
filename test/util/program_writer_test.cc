@@ -3,12 +3,12 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "src/assembler/program_writer.h"
 #include "src/program.h"
-#include "log.h"
+#include "src/util/program_writer.h"
+#include "src/util/log.h"
 
 TEST(ProgramWriterTest, Basic) {
-    TestLog log(true);
+    StdoutLog log;
     ProgramWriter w(&log);
 
     Program p(

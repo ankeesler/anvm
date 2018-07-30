@@ -3,9 +3,9 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "src/assembler/program_reader.h"
 #include "src/program.h"
-#include "log.h"
+#include "src/util/program_reader.h"
+#include "src/util/log.h"
 
 TEST(ProgramReaderTest, Basic) {
     const unsigned char programBytes[] = {
@@ -21,7 +21,7 @@ TEST(ProgramReaderTest, Basic) {
     };
     const std::string programString((char *)programBytes, sizeof(programBytes));
 
-    TestLog log(true);
+    StdoutLog log;
     ProgramReader r(&log);
 
     Program program;
@@ -49,7 +49,7 @@ TEST(ProgramReaderTest, Underflow) {
     };
     const std::string programString((char *)programBytes, sizeof(programBytes));
 
-    TestLog log(true);
+    StdoutLog log;
     ProgramReader r(&log);
 
     Program program;

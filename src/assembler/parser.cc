@@ -5,8 +5,8 @@
 #include <sstream>
 #include <string>
 
-#include "log.h"
 #include "src/cpu.h"
+#include "src/util/log.h"
 
 #define LOG(...) log_->Printf("parser", __FILE__, __LINE__, __VA_ARGS__)
 

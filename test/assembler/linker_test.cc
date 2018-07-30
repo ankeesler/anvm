@@ -7,12 +7,12 @@
 #include "src/assembler/linker.h"
 #include "src/assembler/parser.h"
 #include "src/cpu.h"
-#include "log.h"
+#include "src/util/log.h"
 
 class BasicLinkTest : public testing::Test {
     public:
         BasicLinkTest() {
-            TestLog parserLog;
+            StdoutLog parserLog;
             Parser p(&parserLog);
             std::string text =
                 "tuna:\n"
@@ -32,7 +32,7 @@ class BasicLinkTest : public testing::Test {
             Parser::Result result = p.Parse(is);
             EXPECT_FALSE(result.Error(nullptr));
 
-            TestLog linkerLog(true);
+            StdoutLog linkerLog;
             Linker l(&linkerLog);
             const char *error = l.Link(result, &program_);
             EXPECT_EQ(error, nullptr);

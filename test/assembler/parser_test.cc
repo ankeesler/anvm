@@ -5,12 +5,12 @@
 #include "gtest/gtest.h"
 
 #include "src/assembler/parser.h"
-#include "log.h"
+#include "src/util/log.h"
 
 class BasicParserTest : public testing::Test {
     public:
         BasicParserTest() {
-            TestLog log(true);
+            StdoutLog log;
             Parser p(&log);
             std::string text =
                 "tuna:\n"
@@ -35,7 +35,7 @@ class BasicParserTest : public testing::Test {
 
 std::map<std::string, const Parser::Function*> *CollectFunctionMap(const std::vector<Parser::Function>& functions) {
     std::map<std::string, const Parser::Function*> *m = new std::map<std::string, const Parser::Function*>();
-    for (int i = 0; i < functions.size(); i++) {
+    for (unsigned int i = 0; i < functions.size(); i++) {
         (*m)[functions[i].Name()] = &functions[i];
     }
     return m;
@@ -44,7 +44,7 @@ std::map<std::string, const Parser::Function*> *CollectFunctionMap(const std::ve
 std::map<std::string, const Parser::Statement*> *CollectStatementMap(const Parser::Function& function) {
     std::map<std::string, const Parser::Statement*> *m = new std::map<std::string, const Parser::Statement*>();
     const std::vector<Parser::Statement> statements = function.Statements();
-    for (int i = 0; i < statements.size(); i++) {
+    for (unsigned int i = 0; i < statements.size(); i++) {
         (*m)[statements[i].Instruction()] = &statements[i];
     }
     return m;
@@ -135,7 +135,7 @@ TEST_F(BasicParserTest, StatementArgs) {
 }
 
 TEST(ParserTest, BadStatement) {
-    TestLog log;
+    StdoutLog log;
     Parser p(&log);
     std::string text =
         "tuna:\n"
@@ -157,7 +157,7 @@ TEST(ParserTest, BadStatement) {
 }
 
 TEST(ParserTest, PartialRegisterSyntax) {
-    TestLog log;
+    StdoutLog log;
     Parser p(&log);
     std::string text =
         "tuna:\n"
@@ -179,7 +179,7 @@ TEST(ParserTest, PartialRegisterSyntax) {
 }
 
 TEST(ParserTest, NoColonFunction) {
-    TestLog log;
+    StdoutLog log;
     Parser p(&log);
     std::string text =
         "tuna:\n"
