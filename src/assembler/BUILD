@@ -27,11 +27,23 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "program_writer_lib",
+    srcs = ["program_writer.cc"],
+    hdrs = ["program_writer.h"],
+    deps = [
+        ":log_lib",
+        "//src:core_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 cc_binary(
     name = "anasm",
     srcs = ["main.cc"],
     deps = [
         ":parser_lib",
         ":linker_lib",
+        ":program_writer_lib",
     ],
 )

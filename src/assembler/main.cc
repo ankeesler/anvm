@@ -3,13 +3,16 @@
 #include <fstream>
 
 #include "parser.h"
+#include "linker.h"
+#include "program_writer.h"
+#include "src/program.h"
 
 static bool ParseFlags(int argc, char *argv[]);
 static void PrintUsage();
 
 static const char *inFilename = nullptr;
 static bool debug = false;
-static const char *outFilename = nullptr;
+static const char *outFilename = "a.out";
 
 int main(int argc, char *argv[]) {
     if (!ParseFlags(argc, argv)) {
@@ -30,6 +33,22 @@ int main(int argc, char *argv[]) {
     std::string maybeError;
     if (result.Error(&maybeError)) {
         std::cout << maybeError << std::endl;
+        return 1;
+    }
+
+    Linker linker(log);
+    Program program;
+    const char *error = linker.Link(result, &program);
+    if (error != nullptr) {
+        std::cout << error << std::endl;
+        return 1;
+    }
+
+    ProgramWriter writer(log);
+    std::ofstream os(outFilename);
+    error = writer.Write(program, os);
+    if (error != nullptr) {
+        std::cout << error << std::endl;
         return 1;
     }
 

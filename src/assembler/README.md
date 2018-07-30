@@ -28,3 +28,4 @@ Here is a BNFish description of the language.
 ```
 
 When a binary file is written, the parsed functions are written in order of appearance in the .asm file.
+The binary file is in big-endian.

@@ -9,9 +9,9 @@
 #include "src/cpu.h"
 #include "log.h"
 
-class BasicWriteTest : public testing::Test {
+class BasicLinkTest : public testing::Test {
     public:
-        BasicWriteTest() {
+        BasicLinkTest() {
             TestLog parserLog;
             Parser p(&parserLog);
             std::string text =
@@ -42,7 +42,7 @@ class BasicWriteTest : public testing::Test {
         Program program_;
 };
 
-TEST_F(BasicWriteTest, Instructions) {
+TEST_F(BasicLinkTest, Instructions) {
     EXPECT_EQ(program_.Words().size(), 21);
 
     const Word expectedOutput[] = {

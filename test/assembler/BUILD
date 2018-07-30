@@ -33,3 +33,19 @@ cc_test(
         ":log_lib",
     ],
 )
+
+cc_test(
+    name = "program_writer_test",
+    srcs = ["program_writer_test.cc"],
+    copts = [
+        "-Iexternal/gtest/googletest/include",
+        "-Iexternal/gtest/googlemock/include",
+    ],
+    deps = [
+        "@gtest//:gtest",
+        "@gtest//:gmock",
+        "@gtest//:gmock_main",
+        "//src/assembler:program_writer_lib",
+        ":log_lib",
+    ],
+)
