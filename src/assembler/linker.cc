@@ -44,12 +44,12 @@ const char *Linker::WriteFunction(const Parser::Function& function, Program *pro
     }
 
     return nullptr;
-} 
+}
 
 const char *Linker::WriteStatement(const Parser::Statement& statement, Program *program) {
     LOG("Writing statement: %s", statement.Instruction().c_str());
 
-    const std::string& instruction = statement.Instruction(); 
+    const std::string& instruction = statement.Instruction();
     if (instruction == "LOAD") {
         return WriteLoadStatement(statement, program);
     } else if (instruction == "STORE") {
@@ -63,7 +63,7 @@ const char *Linker::WriteStatement(const Parser::Statement& statement, Program *
     }
 
     return nullptr;
-} 
+}
 
 const char *Linker::WriteLoadStatement(const Parser::Statement& statement, Program *program) {
     const std::vector<Parser::Arg>& args = statement.Args();
@@ -74,15 +74,15 @@ const char *Linker::WriteLoadStatement(const Parser::Statement& statement, Progr
 
     Word instructionWord;
     switch (args[0].Type()) {
-        case Parser::Arg::Type::LITERAL:
+        case Parser::Arg::LITERAL:
             instructionWord = ILOAD;
             break;
 
-        case Parser::Arg::Type::REGISTER:
+        case Parser::Arg::REGISTER:
             instructionWord = ILOADR;
             break;
 
-        case Parser::Arg::Type::REFERENCE:
+        case Parser::Arg::REFERENCE:
             instructionWord = ILOADM;
             break;
 
@@ -108,11 +108,11 @@ const char *Linker::WriteStoreStatement(const Parser::Statement& statement, Prog
 
     Word instructionWord;
     switch (args[0].Type()) {
-        case Parser::Arg::Type::LITERAL:
+        case Parser::Arg::LITERAL:
             instructionWord = ISTORE;
             break;
 
-        case Parser::Arg::Type::REGISTER:
+        case Parser::Arg::REGISTER:
             instructionWord = ISTORER;
             break;
 

@@ -16,7 +16,7 @@ const Parser::Result& Parser::Parse(std::istream& is) {
     LOG("Starting to parse input stream");
     result_.Clear();
     currentFunction_ = nullptr;
-    
+
     std::string line;
     while (std::getline(is, line)) {
         LOG("Read line: %s", line.c_str());
@@ -88,7 +88,7 @@ void Parser::ParseAndAddStatement(const std::string& line) {
         if (token.at(tokenStart) == '@') {
             isReference = true;
             tokenStart++;
-        } 
+        }
         if (token.at(tokenStart) == '%') {
             if (token.at(tokenStart+1) != 'r') {
                 std::stringstream errorSs;
@@ -110,13 +110,13 @@ void Parser::ParseAndAddStatement(const std::string& line) {
 
         enum Parser::Arg::Type type;
         if (isReference && isRegister) {
-            type = Parser::Arg::Type::REGISTER_REFERENCE;
+            type = Parser::Arg::REGISTER_REFERENCE;
         } else if (isReference) {
-            type = Parser::Arg::Type::REFERENCE;
+            type = Parser::Arg::REFERENCE;
         } else if (isRegister) {
-            type = Parser::Arg::Type::REGISTER;
+            type = Parser::Arg::REGISTER;
         } else {
-            type = Parser::Arg::Type::LITERAL;
+            type = Parser::Arg::LITERAL;
         }
 
         a.SetValue(value);

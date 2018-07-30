@@ -104,9 +104,9 @@ TEST_F(BasicParserTest, StatementArgs) {
     args = statements[0].Args();
     EXPECT_EQ(args.size(), 2);
     EXPECT_EQ(args[0].Value(), 1);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
+    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
     EXPECT_EQ(args[1].Value(), 2);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REFERENCE);
+    EXPECT_EQ(args[1].Type(), Parser::Arg::REFERENCE);
     args = statements[1].Args();
     EXPECT_EQ(args.size(), 0);
 
@@ -115,23 +115,23 @@ TEST_F(BasicParserTest, StatementArgs) {
     args = statements[0].Args();
     EXPECT_EQ(args.size(), 2);
     EXPECT_EQ(args[0].Value(), 1);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
+    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
     EXPECT_EQ(args[1].Value(), 0);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REGISTER);
+    EXPECT_EQ(args[1].Type(), Parser::Arg::REGISTER);
     args = statements[1].Args();
     EXPECT_EQ(args.size(), 2);
     EXPECT_EQ(args[0].Value(), 2);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::Type::REGISTER_REFERENCE);
+    EXPECT_EQ(args[0].Type(), Parser::Arg::REGISTER_REFERENCE);
     EXPECT_EQ(args[1].Value(), 1);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::Type::LITERAL);
+    EXPECT_EQ(args[1].Type(), Parser::Arg::LITERAL);
     args = statements[2].Args();
     EXPECT_EQ(args.size(), 0);
     args = statements[3].Args();
     EXPECT_EQ(args.size(), 2);
     EXPECT_EQ(args[0].Value(), 0);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::Type::LITERAL);
+    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
     EXPECT_EQ(args[1].Value(), -2);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::Type::REGISTER);
+    EXPECT_EQ(args[1].Type(), Parser::Arg::REGISTER);
 }
 
 TEST(ParserTest, BadStatement) {
