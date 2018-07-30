@@ -7,9 +7,10 @@
 
 class Program {
     public:
-        Program(Word i, ...);
+        Program(Word w, ...);
 
-        const std::vector<Word>& Instructions() const { return is_; };
+        const std::vector<Word>& Words() const { return is_; };
+        void AddWord(Word w) { is_.push_back(w); }
 
     private:
         std::vector<Word> is_; 

@@ -4,13 +4,13 @@
 
 #include "cpu.h"
 
-Program::Program(Word i, ...) {
+Program::Program(Word w, ...) {
     va_list list;
-    va_start(list, i);
+    va_start(list, w);
 
-    while (i != IEXIT) {
-        is_.push_back(i);
-        i = va_arg(list, Word);
+    while (w != IEXIT) {
+        is_.push_back(w);
+        w = va_arg(list, Word);
     }
     is_.push_back(IEXIT);
 
