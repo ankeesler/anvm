@@ -18,8 +18,8 @@ cc_test(
 )
 
 cc_test(
-    name = "writer_test",
-    srcs = ["writer_test.cc"],
+    name = "linker_test",
+    srcs = ["linker_test.cc"],
     copts = [
         "-Iexternal/gtest/googletest/include",
         "-Iexternal/gtest/googlemock/include",
@@ -29,7 +29,7 @@ cc_test(
         "@gtest//:gmock",
         "@gtest//:gmock_main",
         "//src/assembler:parser_lib",
-        "//src/assembler:writer_lib",
+        "//src/assembler:linker_lib",
         ":log_lib",
     ],
 )

@@ -16,9 +16,9 @@ cc_library(
 )
 
 cc_library(
-    name = "writer_lib",
-    srcs = ["writer.cc"],
-    hdrs = ["writer.h"],
+    name = "linker_lib",
+    srcs = ["linker.cc"],
+    hdrs = ["linker.h"],
     deps = [
         ":log_lib",
         ":parser_lib",
@@ -32,6 +32,6 @@ cc_binary(
     srcs = ["main.cc"],
     deps = [
         ":parser_lib",
-        ":writer_lib",
+        ":linker_lib",
     ],
 )

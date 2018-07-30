@@ -1,4 +1,4 @@
-#include "writer.h"
+#include "linker.h"
 
 #include <assert.h>
 #include <ostream>
@@ -9,15 +9,15 @@
 #include "log.h"
 #include "src/cpu.h"
 
-#define LOG(...) log_->Printf("writer", __FILE__, __LINE__, __VA_ARGS__)
+#define LOG(...) log_->Printf("linker", __FILE__, __LINE__, __VA_ARGS__)
 
 static std::map<std::string, Word> instruction_map = {
     { "ADD", IADD, },
     { "MULTIPLY", IMULTIPLY, },
 };
 
-const char *Writer::Write(const Parser::Result& result, std::vector<Word>* output) {
-    LOG("Starting writer");
+const char *Linker::Link(const Parser::Result& result, std::vector<Word>* output) {
+    LOG("Starting linker");
 
     for (const Parser::Function& function : result.Functions()) {
         const char *error = WriteFunction(function, output);
@@ -28,11 +28,11 @@ const char *Writer::Write(const Parser::Result& result, std::vector<Word>* outpu
 
     output->push_back(IEXIT);
 
-    LOG("Returning from writer");
+    LOG("Returning from linker");
     return nullptr;
 }
 
-const char *Writer::WriteFunction(const Parser::Function& function, std::vector<Word>* output) {
+const char *Linker::WriteFunction(const Parser::Function& function, std::vector<Word>* output) {
     LOG("Writing function: %s", function.Name().c_str());
 
     for (const Parser::Statement& statement : function.Statements()) {
@@ -45,7 +45,7 @@ const char *Writer::WriteFunction(const Parser::Function& function, std::vector<
     return nullptr;
 } 
 
-const char *Writer::WriteStatement(const Parser::Statement& statement, std::vector<Word>* output) {
+const char *Linker::WriteStatement(const Parser::Statement& statement, std::vector<Word>* output) {
     LOG("Writing statement: %s", statement.Instruction().c_str());
 
     const std::string& instruction = statement.Instruction(); 
@@ -64,7 +64,7 @@ const char *Writer::WriteStatement(const Parser::Statement& statement, std::vect
     return nullptr;
 } 
 
-const char *Writer::WriteLoadStatement(const Parser::Statement& statement, std::vector<Word>* output) {
+const char *Linker::WriteLoadStatement(const Parser::Statement& statement, std::vector<Word>* output) {
     const std::vector<Parser::Arg>& args = statement.Args();
     if (args.size() != 2) {
         LOG("ERROR: LOAD expects 2 args, got %d", args.size());
@@ -98,7 +98,7 @@ const char *Writer::WriteLoadStatement(const Parser::Statement& statement, std::
     return nullptr;
 }
 
-const char *Writer::WriteStoreStatement(const Parser::Statement& statement, std::vector<Word>* output) {
+const char *Linker::WriteStoreStatement(const Parser::Statement& statement, std::vector<Word>* output) {
     const std::vector<Parser::Arg>& args = statement.Args();
     if (args.size() != 2) {
         LOG("ERROR: STORE expects 2 args, got %d", args.size());

@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "src/assembler/writer.h"
+#include "src/assembler/linker.h"
 #include "src/assembler/parser.h"
 #include "src/cpu.h"
 #include "log.h"
@@ -32,9 +32,9 @@ class BasicWriteTest : public testing::Test {
             Parser::Result result = p.Parse(is);
             EXPECT_FALSE(result.Error(nullptr));
 
-            TestLog writerLog(true);
-            Writer w(&writerLog);
-            const char *error = w.Write(result, &output_);
+            TestLog linkerLog(true);
+            Linker l(&linkerLog);
+            const char *error = l.Link(result, &output_);
             EXPECT_EQ(error, nullptr);
         }
 

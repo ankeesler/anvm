@@ -1,5 +1,5 @@
-#ifndef ANVM_ASSEMBLER_WRITER_H_
-#define ANVM_ASSEMBLER_WRITER_H_
+#ifndef ANVM_ASSEMBLER_LINKER_H_
+#define ANVM_ASSEMBLER_LINKER_H_
 
 #include <ostream>
 #include <vector>
@@ -8,11 +8,11 @@
 #include "parser.h"
 #include "src/cpu.h"
 
-class Writer {
+class Linker {
     public:
-        Writer(Log *log) : log_(log) { }
+        Linker(Log *log) : log_(log) { }
 
-        const char *Write(const Parser::Result& result, std::vector<Word> *output);
+        const char *Link(const Parser::Result& result, std::vector<Word> *output);
 
     private:
         const char *WriteFunction(const Parser::Function& function, std::vector<Word> *output); 
@@ -23,4 +23,4 @@ class Writer {
         Log *log_;
 };
 
-#endif // ANVM_ASSEMBLER_WRITER_H_
+#endif // ANVM_ASSEMBLER_LINKER_H_
