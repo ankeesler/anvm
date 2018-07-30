@@ -7,7 +7,10 @@
 #include "src/program.h"
 #include "log.h"
 
-TEST(ProgramWriterTest, Foo) {
+TEST(ProgramWriterTest, Basic) {
+    TestLog log(true);
+    ProgramWriter w(&log);
+
     Program p(
             IBRANCHX, 8,
             IADD,
@@ -15,9 +18,6 @@ TEST(ProgramWriterTest, Foo) {
             IBRANCHR, 1,
             IEXIT
             );
-
-    TestLog log(true);
-    ProgramWriter w(&log);
     std::ostringstream os;
     const char *error = w.Write(p, os);
     EXPECT_EQ(error, nullptr);
@@ -36,5 +36,4 @@ TEST(ProgramWriterTest, Foo) {
         0xFF, 0xFF, 0xFF, 0xFF,
     };
     EXPECT_THAT(bytes, testing::ElementsAreArray(expectedOutput, 36));
-    (void)expectedOutput;
 }
