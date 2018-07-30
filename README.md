@@ -8,7 +8,7 @@ Object model:
 - A CPU has a program counter, a stack pointer, a status register, and some general purpose registers.
 - A System is a thing that runs Program's on a CPU.
 
-To run the tests:
+To run the tests you need to download [bazel](https://github.com/bazelbuild/bazel/releases). Then, run:
 ```bash
 ./script/test.sh
 ```
