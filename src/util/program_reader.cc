@@ -9,7 +9,7 @@
 
 #define LOG(...) log_->Printf("program_writer", __FILE__, __LINE__, __VA_ARGS__)
 
-const ProgramReader::Error& ProgramReader::Read(std::istream& is, Program *program) {
+const Error ProgramReader::Read(std::istream& is, Program *program) {
     LOG("Reading program from stream");
 
     do {
@@ -18,17 +18,16 @@ const ProgramReader::Error& ProgramReader::Read(std::istream& is, Program *progr
         if (readCount == 0) {
             break;
         } else if (readCount != sizeof(bytes)) {
-            std::stringstream errorSs;
-            errorSs << "ERROR: program underflow at word " << program->Words().size();
-            errorSs << "; got " << readCount << " bytes but wanted " << sizeof(bytes);
-            error_.Set(errorSs.str());
-            LOG(error_.Get().c_str());
-            return error_;
+            Error e;
+            e << "ERROR: program underflow at word " << program->Words().size();
+            e << "; got " << readCount << " bytes but wanted " << sizeof(bytes);
+            LOG(e.S().c_str());
+            return e;
         }
         Word w = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | (bytes[3] << 0);
         program->AddWord(w);
     } while (is);
 
     LOG("Done reading program from stream");
-    return error_;
+    return Error::NONE;
 }

@@ -26,7 +26,7 @@ TEST(ProgramReaderTest, Basic) {
 
     Program program;
     std::istringstream is(programString);
-    const ProgramReader::Error& error = r.Read(is, &program);
+    const Error error = r.Read(is, &program);
     EXPECT_FALSE(error);
     EXPECT_EQ(program.Words().size(), 9);
 
@@ -54,7 +54,7 @@ TEST(ProgramReaderTest, Underflow) {
 
     Program program;
     std::istringstream is(programString);
-    const ProgramReader::Error& error = r.Read(is, &program);
+    const Error error = r.Read(is, &program);
     EXPECT_TRUE(error);
-    EXPECT_EQ(error.Get(), "ERROR: program underflow at word 3; got 2 bytes but wanted 4");
+    EXPECT_EQ(error.S(), "ERROR: program underflow at word 3; got 2 bytes but wanted 4");
 }

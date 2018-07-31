@@ -47,9 +47,9 @@ int main(int argc, char *argv[]) {
 
     ProgramWriter writer(log);
     std::ofstream os(outFilename);
-    error = writer.Write(program, os);
-    if (error != nullptr) {
-        std::cout << error << std::endl;
+    Error err = writer.Write(program, os);
+    if (err) {
+        std::cout << err << std::endl;
         return 1;
     }
 

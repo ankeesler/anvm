@@ -29,5 +29,6 @@ cc_binary(
         ":linker_lib",
         "//src/util:program_writer_lib",
         "//src/util:log_lib",
+        "//src/util:error_lib",
     ],
 )

@@ -4,13 +4,14 @@
 #include <ostream>
 
 #include "log.h"
+#include "error.h"
 #include "src/program.h"
 
 class ProgramWriter {
     public:
         ProgramWriter(Log *log) : log_(log) { }
 
-        const char *Write(const Program& program, std::ostream& os);
+        Error Write(const Program& program, std::ostream& os);
 
     private:
         Log *log_;

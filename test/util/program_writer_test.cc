@@ -6,6 +6,7 @@
 #include "src/program.h"
 #include "src/util/program_writer.h"
 #include "src/util/log.h"
+#include "src/util/error.h"
 
 TEST(ProgramWriterTest, Basic) {
     StdoutLog log;
@@ -19,8 +20,8 @@ TEST(ProgramWriterTest, Basic) {
             IEXIT
             );
     std::ostringstream os;
-    const char *error = w.Write(p, os);
-    EXPECT_EQ(error, nullptr);
+    Error e = w.Write(p, os);
+    EXPECT_FALSE(e);
     const std::string&& bytes = os.str();
     EXPECT_EQ(bytes.size(), 36);
 

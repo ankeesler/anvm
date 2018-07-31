@@ -5,11 +5,19 @@ cc_library(
 )
 
 cc_library(
+    name = "error_lib",
+    srcs = ["error.cc"],
+    hdrs = ["error.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "program_writer_lib",
     srcs = ["program_writer.cc"],
     hdrs = ["program_writer.h"],
     deps = [
         ":log_lib",
+        ":error_lib",
         "//src:core_lib",
     ],
     visibility = ["//visibility:public"],
@@ -21,6 +29,7 @@ cc_library(
     hdrs = ["program_reader.h"],
     deps = [
         ":log_lib",
+        ":error_lib",
         "//src:core_lib",
     ],
     visibility = ["//visibility:public"],
