@@ -10,4 +10,4 @@ fish:
 	LOAD %rsp %r0
 	LOAD 4 %r1
 	ADD
-	LOAD %r0 %rsp 
+	LOAD %r0 %rsp

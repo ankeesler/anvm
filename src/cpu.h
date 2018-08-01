@@ -18,18 +18,22 @@ typedef int32_t Word;
 
 #define IEXIT ((Word)-1) /* the program is done */
 
+// Load into a register.
 #define ILOAD ((Word)0x00) /* literal, reg; gr[reg] = literal */
 #define ILOADR ((Word)0x01) /* regA, regB; gr[regB] = gr[regA] */
 #define ILOADM ((Word)0x02) /* addr, reg; mem[addr] = gr[reg] */
 
+// Store into memory.
 #define ISTORE ((Word)0x10) /* literal, addr; mem[addr] = literal */
 #define ISTORER ((Word)0x11) /* addr, reg; mem[addr] = gr[reg] */
 
+// Branch to instruction.
 #define IBRANCH ((Word)0x20) /* pc = gr[0] */
 #define IBRANCHR ((Word)0x21) /* reg; pc = gr[reg] */
 #define IBRANCHX ((Word)0x23) /* addr; pc = addr */
 #define IBRANCHIF ((Word)0x24) /* if gr[0] != 0, pc = gr[1] */
 
+// Perform math operations.
 #define IADD ((Word)0xA0) /* gr[0] + gr[1] = gr[0] */
 #define IMULTIPLY ((Word)0xA1) /* gr[0] * gr[1] = gr[0] */
 #define ISUBTRACT ((Word)0xA2) /* gr[0] - gr[1] = gr[0] */
