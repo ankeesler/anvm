@@ -51,4 +51,11 @@ TEST(ErrorTest, Basic) {
     nums << 5 << " is less than " << (long)35;
     EXPECT_TRUE(nums);
     EXPECT_EQ(nums.S(), "5 is less than 35");
+
+    Error equals("5 is less than 35");
+    EXPECT_TRUE(equals);
+    EXPECT_EQ(nums, equals);
+
+    const std::string same = "5 is less than 35";
+    EXPECT_EQ(nums, Error(same));
 }

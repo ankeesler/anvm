@@ -14,6 +14,16 @@ class Error {
             }
         }
 
+        Error(const std::string& s) {
+            exists_ = true;
+            ss_.str(s);
+        }
+
+        Error(const char *s) {
+            exists_ = true;
+            ss_ << s;
+        }
+
         operator bool() const { return exists_; }
 
         bool operator==(const Error& e) {
