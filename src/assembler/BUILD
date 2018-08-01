@@ -21,13 +21,25 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-cc_binary(
-    name = "anasm",
-    srcs = ["main.cc"],
+cc_library(
+    name = "assembler_lib",
+    srcs = ["assembler.cc"],
+    hdrs = ["assembler.h"],
     deps = [
         ":parser_lib",
         ":linker_lib",
         "//src/util:program_writer_lib",
+        "//src/util:error_lib",
+        "//src/util:log_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "anasm",
+    srcs = ["main.cc"],
+    deps = [
+        ":assembler_lib",
         "//src/util:log_lib",
         "//src/util:error_lib",
     ],

@@ -2,10 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "parser.h"
-#include "linker.h"
-#include "src/program.h"
-#include "src/util/program_writer.h"
+#include "assembler.h"
 #include "src/util/log.h"
 
 static bool ParseFlags(int argc, char *argv[]);
@@ -21,35 +18,20 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::ifstream ifs(inFilename);
     Log *log = nullptr;
     if (debug) {
         log = new StdoutLog();
     } else {
         log = new VoidLog();
     }
-    Parser parser(log);
 
-    const Parser::Result& result = parser.Parse(ifs);
-    std::string maybeError;
-    if (result.Error(&maybeError)) {
-        std::cout << maybeError << std::endl;
-        return 1;
-    }
+    std::ifstream ifs(inFilename);
+    std::ofstream ofs(outFilename);
 
-    Linker linker(log);
-    Program program;
-    const char *error = linker.Link(result, &program);
-    if (error != nullptr) {
+    Assembler a;
+    Error error = a.Run(log, ifs, ofs);
+    if (error) {
         std::cout << error << std::endl;
-        return 1;
-    }
-
-    ProgramWriter writer(log);
-    std::ofstream os(outFilename);
-    Error err = writer.Write(program, os);
-    if (err) {
-        std::cout << err << std::endl;
         return 1;
     }
 
