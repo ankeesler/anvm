@@ -12,23 +12,22 @@ Here is a rough layout of the language.
 
 Here is a BNFish description of the language.
 ```
-<function> ::= <name> ":" <EOL> <statements> <EOL>
+<function> ::= <symbol> ":" <EOL> <statements> <EOL>
 
 <statements>  ::= <statement> | <statements> <statement>
-<statement>   ::= <instruction> <space> <args> <EOL>
-<instruction> ::= <uppercase> | <instruction> <uppercase>
+<statement>   ::= <instruction> " " <args> <EOL>
+<instruction> ::= <symbol> | <instruction> <symbol>
 
-<args>     ::= <arg> | <args> <space> <arg>
-<arg>      ::= <literal> | "@" <literal> | <register> | "@" <register>
-<literal>  ::= "#" <number>
-<register> ::= "%r" <number> | "%rsp"
+<args>               ::= <arg> | <args> " " <arg>
+<arg>                ::= <literal> | <reference> | <register> | <reference_register> | <symbol_reference>
+<literal>            ::= "#" <number>
+<reference>          ::= "@" <literal>
+<register>           ::= "%r" <number> | "%r" "sp" | "%r" "pc"
+<reference_register> ::= "@" <register>
+<symbol_reference>   ::= "$" <symbol>
 
-<name>         ::= <name-stuff> | <word> <name-stuff>
-<name-stuff>   ::= [A-Za-z0-9_]
-<uppercase>    ::= [A-Z]
-<number>       ::= <number> | <number-stuff> <number>
-<number-stuff> ::= [0-9]
-<space>        ::= " "
+<symbol> ::= [A-Za-z0-9_]+
+<number> ::= [0-9]+
 ```
 
 When a binary file is written, the parsed functions are written in order of appearance in the .asm file.
