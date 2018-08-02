@@ -12,35 +12,35 @@
 
 static bool ParseValue(const std::string& token, Word *value);
 
-const Parser::Result& Parser::Parse(std::istream& is) {
+void Parser::Parse(std::istream& is, Parser::Result *result) {
     LOG("Starting to parse input stream");
-    result_.Clear();
     currentFunction_ = nullptr;
 
     std::string line;
+    int line_num = 1;
     while (std::getline(is, line)) {
         LOG("Read line: %s", line.c_str());
         if (line.size() == 0) {
-            AddFunction();
+            AddFunction(result);
         } else if (currentFunction_ == nullptr) {
-            ParseFunction(line);
+            ParseFunction(line, line_num, result);
         } else {
-            ParseAndAddStatement(line);
+            ParseAndAddStatement(line, line_num, result);
         }
 
-        if (result_.Error(nullptr)) {
-            break;
+        if (result->Errors().size() > 0) {
+            return;
         }
+
+        line_num++;
     }
 
     if (currentFunction_ != nullptr) {
-        AddFunction();
+        AddFunction(result);
     }
-
-    return result_;
 }
 
-void Parser::ParseFunction(const std::string& line) {
+void Parser::ParseFunction(const std::string& line, int line_num, Parser::Result *result) {
     LOG("Parsing function");
 
     if (line.back() == ':') {
@@ -48,30 +48,31 @@ void Parser::ParseFunction(const std::string& line) {
         currentFunction_ = new Function();
         currentFunction_->SetName(name);
     } else {
-        std::stringstream errorSs;
-        errorSs << "ERROR: expected colon at end of declaration of function " << line;
-        result_.SetError(errorSs.str());
-        LOG(errorSs.str().c_str());
-        return;
+        Error e;
+        e << "ERROR: line " << line_num << ": ";
+        e << "expected colon at end of declaration of function " << line;
+        LOG(e.S().c_str());
+        result->AddError(e);
     }
 }
 
-void Parser::AddFunction() {
-    result_.AddFunction(*currentFunction_);
+void Parser::AddFunction(Parser::Result *result) {
+    result->AddFunction(*currentFunction_);
     LOG("Added function with name %s", currentFunction_->Name().c_str());
 
     delete currentFunction_;
     currentFunction_ = nullptr;
 }
 
-void Parser::ParseAndAddStatement(const std::string& line) {
+void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser::Result *result) {
     std::stringstream ss(line);
     std::string instruction;
     if (!(ss >> instruction)) {
-        std::stringstream errorSs;
-        errorSs << "ERROR: No instruction in statement: " << line;
-        result_.SetError(errorSs.str());
-        LOG(errorSs.str().c_str());
+        Error e;
+        e << "ERROR: line " << line_num << ": ";
+        e << "no instruction in statement: " << line;
+        LOG(e.S().c_str());
+        result->AddError(e);
         return;
     }
 
@@ -91,10 +92,11 @@ void Parser::ParseAndAddStatement(const std::string& line) {
         }
         if (token.at(tokenStart) == '%') {
             if (token.at(tokenStart+1) != 'r') {
-                std::stringstream errorSs;
-                errorSs << "ERROR: expected register identifier at character " << tokenStart+1 << " of token " << token;
-                result_.SetError(errorSs.str());
-                LOG(errorSs.str().c_str());
+                Error e;
+                e << "ERROR: line " << line_num << ": ";
+                e << "expected register identifier at character " << tokenStart+1 << " of token " << token;
+                LOG(e.S().c_str());
+                result->AddError(e);
                 return;
             }
             isRegister = true;
@@ -104,7 +106,10 @@ void Parser::ParseAndAddStatement(const std::string& line) {
         const std::string&& realToken = token.substr(tokenStart);
         Word value;
         if (!ParseValue(realToken, &value)) {
-            LOG("ERROR: failed to parse value from token %s", realToken.c_str());
+            Error e;
+            e << "ERROR: line " << line_num << ": ";
+            e << "failed to parse value from token %s", realToken.c_str();
+            LOG(e.S().c_str());
             assert(0);
         }
 

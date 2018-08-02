@@ -6,6 +6,7 @@
 
 #include "src/assembler/parser.h"
 #include "src/util/log.h"
+#include "src/util/error.h"
 
 class BasicParserTest : public testing::Test {
     public:
@@ -26,7 +27,7 @@ class BasicParserTest : public testing::Test {
                 "  MULTIPLY\n"
                 "  LOAD 0 %rsp\n";
             std::stringstream is(text, std::ios_base::in);
-            result_ = p.Parse(is);
+            p.Parse(is, &result_);
         }
 
     protected:
@@ -51,7 +52,7 @@ std::map<std::string, const Parser::Statement*> *CollectStatementMap(const Parse
 }
 
 TEST_F(BasicParserTest, FunctionNames) {
-    EXPECT_FALSE(result_.Error(nullptr));
+    EXPECT_EQ(result_.Errors().size(), 0);
 
     auto functions = result_.Functions();
     EXPECT_EQ(functions.size(), 3);
@@ -63,7 +64,7 @@ TEST_F(BasicParserTest, FunctionNames) {
 }
 
 TEST_F(BasicParserTest, StatementInstructions) {
-    EXPECT_FALSE(result_.Error(nullptr));
+    EXPECT_EQ(result_.Errors().size(), 0);
 
     auto functionMap = CollectFunctionMap(result_.Functions());
 
@@ -88,7 +89,7 @@ TEST_F(BasicParserTest, StatementInstructions) {
 }
 
 TEST_F(BasicParserTest, StatementArgs) {
-    EXPECT_FALSE(result_.Error(nullptr));
+    EXPECT_EQ(result_.Errors().size(), 0);
 
     auto functionMap = CollectFunctionMap(result_.Functions());
 
@@ -150,10 +151,11 @@ TEST(ParserTest, BadStatement) {
         "  MULTIPLY\n"
         "  LOADR 0 %rsp\n";
     std::stringstream is(text, std::ios_base::in);
-    const Parser::Result& result = p.Parse(is);
+    Parser::Result result;
+    p.Parse(is, &result);
     std::string errorString;
-    EXPECT_TRUE(result.Error(&errorString));
-    EXPECT_STREQ(errorString.c_str(), "ERROR: No instruction in statement:   ");
+    EXPECT_EQ(result.Errors().size(), 1);
+    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 5: no instruction in statement:   ");;
 }
 
 TEST(ParserTest, PartialRegisterSyntax) {
@@ -172,10 +174,11 @@ TEST(ParserTest, PartialRegisterSyntax) {
         "  MULTIPLY\n"
         "  LOADR 0 %rsp\n";
     std::stringstream is(text, std::ios_base::in);
-    const Parser::Result& result = p.Parse(is);
+    Parser::Result result;
+    p.Parse(is, &result);
     std::string errorString;
-    EXPECT_TRUE(result.Error(&errorString));
-    EXPECT_STREQ(errorString.c_str(), "ERROR: expected register identifier at character 2 of token @%2");
+    EXPECT_EQ(result.Errors().size(), 1);
+    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 9: expected register identifier at character 2 of token @%2");
 }
 
 TEST(ParserTest, NoColonFunction) {
@@ -194,8 +197,8 @@ TEST(ParserTest, NoColonFunction) {
         "  MULTIPLY\n"
         "  LOADR 0 %rsp\n";
     std::stringstream is(text, std::ios_base::in);
-    const Parser::Result& result = p.Parse(is);
-    std::string errorString;
-    EXPECT_TRUE(result.Error(&errorString));
-    EXPECT_STREQ(errorString.c_str(), "ERROR: expected colon at end of declaration of function fish");
+    Parser::Result result;
+    p.Parse(is, &result);
+    EXPECT_EQ(result.Errors().size(), 1);
+    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 4: expected colon at end of declaration of function fish");
 }

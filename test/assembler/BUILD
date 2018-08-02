@@ -7,6 +7,7 @@ cc_test(
         "@gtest//:gtest_main",
         "//src/assembler:parser_lib",
         "//src/util:log_lib",
+        "//src/util:error_lib",
     ],
 )
 

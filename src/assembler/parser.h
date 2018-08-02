@@ -7,6 +7,7 @@
 
 #include "src/cpu.h"
 #include "src/util/log.h"
+#include "src/util/error.h"
 
 class Parser {
     public:
@@ -57,41 +58,27 @@ class Parser {
 
         class Result {
             public:
-                Result() : error_(false) { }
-
-                void Clear() { functions_.clear(); }
-
                 const std::vector<Function>& Functions() const { return functions_; }
                 void AddFunction(const Function& function) { functions_.push_back(function); }
 
-                bool Error(std::string *error) const {
-                    if (error_ && error != nullptr) {
-                        *error = errorString_;
-                    }
-                    return error_;
-                }
-                void SetError(const std::string& error) {
-                    error_ = true;
-                    errorString_ = error;
-                }
+                const std::vector<Error>& Errors() const { return errors_; }
+                void AddError(const Error& error) { errors_.push_back(error); }
 
             private:
-                bool error_;
-                std::string errorString_;
                 std::vector<Function> functions_;
+                std::vector<Error> errors_;
         };
 
         Parser(Log *log) : log_(log) { }
 
-        const Result& Parse(std::istream& is);
+        void Parse(std::istream& is, Result *result);
 
     private:
-        void ParseFunction(const std::string& line);
-        void AddFunction();
-        void ParseAndAddStatement(const std::string& line);
+        void ParseFunction(const std::string& line, int line_num, Result *result);
+        void AddFunction(Result *result);
+        void ParseAndAddStatement(const std::string& line, int line_num, Result *result);
 
         Log *log_;
-        Result result_;
         Function *currentFunction_;
 };
 

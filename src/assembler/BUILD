@@ -4,6 +4,7 @@ cc_library(
     hdrs = ["parser.h"],
     deps = [
         "//src/util:log_lib",
+        "//src/util:error_lib",
         "//src:core_lib",
     ],
     visibility = ["//visibility:public"],

@@ -13,6 +13,7 @@ class BasicLinkTest : public testing::Test {
     public:
         BasicLinkTest() {
             StdoutLog parserLog;
+            Parser::Result result;
             Parser p(&parserLog);
             std::string text =
                 "tuna:\n"
@@ -29,8 +30,8 @@ class BasicLinkTest : public testing::Test {
                 "  MULTIPLY\n"
                 "  LOAD 0 %rsp\n";
             std::stringstream is(text, std::ios_base::in);
-            Parser::Result result = p.Parse(is);
-            EXPECT_FALSE(result.Error(nullptr));
+            p.Parse(is, &result);
+            EXPECT_EQ(result.Errors().size(), 0);
 
             StdoutLog linkerLog;
             Linker l(&linkerLog);

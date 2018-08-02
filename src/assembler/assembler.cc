@@ -1,5 +1,6 @@
 #include "assembler.h"
 
+#include <assert.h>
 #include <istream>
 #include <ostream>
 
@@ -11,15 +12,16 @@
 
 Error Assembler::Run(Log *log, std::istream& is, std::ostream& os) {
     Parser parser(log);
-    const Parser::Result& result = parser.Parse(is);
-    std::string maybeError;
-    if (result.Error(&maybeError)) {
-        return Error(maybeError);
+    Parser::Result parserResult;
+    parser.Parse(is, &parserResult);
+    if (parserResult.Errors().size() > 0) {
+        assert(parserResult.Errors().size() == 1);
+        return parserResult.Errors()[0];
     }
 
     Linker linker(log);
     Program program;
-    const char *error = linker.Link(result, &program);
+    const char *error = linker.Link(parserResult, &program);
     if (error != nullptr) {
         return Error(error);
     }
