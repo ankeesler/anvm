@@ -12,7 +12,8 @@ Here is a rough layout of the language.
 
 Here is a BNFish description of the language.
 ```
-<function> ::= <symbol> ":" <EOL> <statements> <EOL>
+<functions> ::= <function> | <functions> <function>
+<function>  ::= <symbol> ":" <EOL> <statements> <EOL>
 
 <statements>  ::= <statement> | <statements> <statement>
 <statement>   ::= <instruction> " " <args> <EOL>
@@ -26,8 +27,12 @@ Here is a BNFish description of the language.
 <reference_register> ::= "@" <register>
 <symbol_reference>   ::= "$" <symbol>
 
+<EOL>     ::= "\n" | <comment> "\n"
+<comment> ::= ";;" <stuff>
+
 <symbol> ::= [A-Za-z0-9_]+
 <number> ::= [0-9]+
+<stuff>  ::= [^\n]+
 ```
 
 When a binary file is written, the parsed functions are written in order of appearance in the .asm file.
