@@ -4,6 +4,15 @@ log() {
     echo "[`basename $0`] $1"
 }
 
+cleanup() {
+    rm -f a.out
+}
+
+fail() {
+    cleanup
+    exit 1
+}
+
 expect_success() {
     command="$@"
     log "RUNNING: $command"
@@ -13,7 +22,7 @@ expect_success() {
         log "ERROR: Expected success, but got $status"
         log "STDOUT:"
         echo "$stdout"
-        exit 1
+        fail
     fi
     log "PASS"
 }
@@ -23,7 +32,7 @@ expect_file() {
     log "RUNNING: -f $file"
     if [[ ! -f $file ]]; then
         log "ERROR: Expected file $file to exist"
-        exit 1
+        fail
     fi
     log "PASS"
     rm $file
@@ -38,7 +47,7 @@ expect_failure() {
         log "ERROR: Expected failure, but got $status"
         log "STDOUT:"
         echo "$stdout"
-        exit 1
+        fail
     fi
     log "PASS"
 }
@@ -46,7 +55,7 @@ expect_failure() {
 bazel build //src/assembler:anasm
 if [[ $? -ne 0 ]]; then
     log "ERROR: Failed to build anasm"
-    exit 1
+    fail
 fi
 anasm="bazel-bin/src/assembler/anasm"
 
@@ -59,3 +68,5 @@ expect_file custom-file.out
 expect_failure ./$anasm test/assembler/integration/fixtures/bad.asm
 expect_failure ./$anasm
 expect_failure ./$anasm --debug --output foo.asm
+
+cleanup
