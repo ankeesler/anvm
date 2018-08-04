@@ -21,6 +21,17 @@ cc_library(
 )
 
 cc_library(
+    name = "symbol_table_lib",
+    srcs = ["symbol_table.cc"],
+    hdrs = ["symbol_table.h"],
+    deps = [
+        "//src/util:log_lib",
+        "//src:core_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "assembler_lib",
     srcs = ["assembler.cc"],
     hdrs = ["assembler.h"],
