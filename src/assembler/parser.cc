@@ -10,7 +10,11 @@
 
 #define LOG(...) log_->Printf("parser", __FILE__, __LINE__, __VA_ARGS__)
 
+#define LogComment(line, line_num) \
+    LOG("Encountered comment as first entry of line %d (%s)", (line_num), (line).c_str());
+
 static bool ParseValue(const std::string& token, Word *value);
+static bool IsComment(const std::string& s);
 
 void Parser::Parse(std::istream& is, Parser::Result *result) {
     LOG("Starting to parse input stream");
@@ -43,8 +47,20 @@ void Parser::Parse(std::istream& is, Parser::Result *result) {
 void Parser::ParseFunction(const std::string& line, int line_num, Parser::Result *result) {
     LOG("Parsing function");
 
-    if (line.back() == ':') {
-        const std::string&& name = line.substr(0, line.size()-1);
+    std::istringstream iss(line);
+    std::string first_symbol;
+
+    if (!(iss >> first_symbol)) {
+        assert(0);
+    }
+
+    if (IsComment(first_symbol)) {
+        LogComment(line, line_num);
+        return;
+    }
+
+    if (first_symbol.back() == ':') {
+        const std::string&& name = first_symbol.substr(0, first_symbol.size()-1);
         currentFunction_ = new Function();
         currentFunction_->SetName(name);
     } else {
@@ -66,8 +82,8 @@ void Parser::AddFunction(Parser::Result *result) {
 
 void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser::Result *result) {
     std::stringstream ss(line);
-    std::string instruction;
-    if (!(ss >> instruction)) {
+    std::string first_symbol;
+    if (!(ss >> first_symbol)) {
         Error e;
         e << "ERROR: line " << line_num << ": ";
         e << "no instruction in statement: " << line;
@@ -76,12 +92,23 @@ void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser:
         return;
     }
 
+    if (IsComment(first_symbol)) {
+        LogComment(line, line_num);
+        return;
+    }
+
+    const std::string& instruction = first_symbol;
     Statement statement;
     statement.SetInstruction(instruction);
     LOG("Setting statement instruction: %s", instruction.c_str());
 
     std::string token;
     while (ss >> token) {
+        if (IsComment(token)) {
+            LogComment(line, line_num);
+            break;
+        }
+
         Arg a;
         bool isReference = false;
         bool isRegister = false;
@@ -108,7 +135,7 @@ void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser:
         if (!ParseValue(realToken, &value)) {
             Error e;
             e << "ERROR: line " << line_num << ": ";
-            e << "failed to parse value from token %s", realToken.c_str();
+            e << "failed to parse value from token " << realToken.c_str();
             LOG(e.S().c_str());
             assert(0);
         }
@@ -149,4 +176,8 @@ static bool ParseValue(const std::string& token, Word *value) {
     } catch (const std::exception& e) {
         return false;
     }
+}
+
+static bool IsComment(const std::string& s) {
+    return s.size() >= 2 && s[0] == ';' && s[1] == ';';
 }
