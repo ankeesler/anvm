@@ -5,81 +5,40 @@
 #include <vector>
 #include <map>
 
-#include "src/cpu.h"
 #include "src/util/log.h"
-#include "src/util/error.h"
 
 class Parser {
     public:
-        class Arg {
+        class Handler {
             public:
-                enum Type {
+                enum ArgType {
                     LITERAL,
-                    REGISTER,
                     REFERENCE,
+                    REGISTER,
                     REGISTER_REFERENCE,
+                    SYMBOL,
                 };
-                Word Value() const { return value_; }
-                void SetValue(Word value) { value_ = value; }
 
-                enum Type Type() const { return type_; }
-                void SetType(enum Type type) { type_ = type; }
-
-            private:
-                Word value_;
-                enum Type type_;
-        };
-
-        class Statement {
-            public:
-                const std::string& Instruction() const { return instruction_; }
-                void SetInstruction(const std::string& instruction) { instruction_ = instruction; }
-
-                const std::vector<Arg> Args() const { return args_; }
-                void AddArg(const Arg& arg) { args_.push_back(arg); }
-
-            private:
-                std::string instruction_;
-                std::vector<Arg> args_;
-        };
-
-        class Function {
-            public:
-                const std::string& Name() const { return name_; }
-                void SetName(const std::string& name) { name_ = name; }
-
-                const std::vector<Statement>& Statements() const { return statements_; }
-                void AddStatement(const Statement& statement) { statements_.push_back(statement); }
-
-            private:
-                std::string name_;
-                std::vector<Statement> statements_;
-        };
-
-        class Result {
-            public:
-                const std::vector<Function>& Functions() const { return functions_; }
-                void AddFunction(const Function& function) { functions_.push_back(function); }
-
-                const std::vector<Error>& Errors() const { return errors_; }
-                void AddError(const Error& error) { errors_.push_back(error); }
-
-            private:
-                std::vector<Function> functions_;
-                std::vector<Error> errors_;
+                virtual void OnError(const std::string& s, int line_num) = 0;
+                virtual void OnFunction(const std::string& name, int line_num) = 0;
+                virtual void OnInstruction(const std::string& name, int line_num) = 0;
+                virtual void OnArg(enum ArgType type, const std::string& name, int line_num) = 0;
         };
 
         Parser(Log *log) : log_(log) { }
 
-        void Parse(std::istream& is, Result *result);
+        void Parse(std::istream& is, Handler *handler);
 
     private:
-        void ParseFunction(const std::string& line, int line_num, Result *result);
-        void AddFunction(Result *result);
-        void ParseAndAddStatement(const std::string& line, int line_num, Result *result);
+        bool ParseFunction(const std::string& line, int line_num, Handler *handler);
+        void ParseStatement(const std::string& line, int line_num, Handler *handler);
+        bool ParseLiteralArg(const std::string& arg, int line_num, Handler *handler);
+        bool ParseReferenceArg(const std::string& arg, int line_num, Handler *handler);
+        bool ParseRegisterArg(const std::string& arg, int line_num, bool is_reference, Handler *handler);
+        bool ParseSymbolArg(const std::string& arg, int line_num, Handler *handler);
 
         Log *log_;
-        Function *currentFunction_;
+        bool error_;
 };
 
 #endif // ANVM_ASSEMBLER_PARSER_H_

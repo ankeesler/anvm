@@ -5,7 +5,6 @@
 #include <sstream>
 #include <string>
 
-#include "src/cpu.h"
 #include "src/util/log.h"
 
 #define LOG(...) log_->Printf("parser", __FILE__, __LINE__, __VA_ARGS__)
@@ -13,83 +12,66 @@
 #define LogComment(line, line_num) \
     LOG("Encountered comment as first entry of line %d (%s)", (line_num), (line).c_str());
 
-static bool ParseValue(const std::string& token, Word *value);
+static bool IsValidValue(const std::string& token);
 static bool IsComment(const std::string& s);
 
-void Parser::Parse(std::istream& is, Parser::Result *result) {
+void Parser::Parse(std::istream& is, Parser::Handler *handler) {
     LOG("Starting to parse input stream");
-    currentFunction_ = nullptr;
 
     std::string line;
     int line_num = 1;
+    bool in_function = false;
+    error_ = false;
     while (std::getline(is, line)) {
         LOG("Read line: %s", line.c_str());
+
         if (line.size() == 0) {
-            AddFunction(result);
-        } else if (currentFunction_ == nullptr) {
-            ParseFunction(line, line_num, result);
+            in_function = false;
+        } else if (!in_function) {
+            in_function = ParseFunction(line, line_num, handler);
         } else {
-            ParseAndAddStatement(line, line_num, result);
+            ParseStatement(line, line_num, handler);
         }
 
-        if (result->Errors().size() > 0) {
-            return;
+        if (error_) {
+            break;
         }
 
         line_num++;
     }
-
-    if (currentFunction_ != nullptr) {
-        AddFunction(result);
-    }
 }
 
-void Parser::ParseFunction(const std::string& line, int line_num, Parser::Result *result) {
+bool Parser::ParseFunction(const std::string& line, int line_num, Parser::Handler *handler) {
     LOG("Parsing function");
 
     std::istringstream iss(line);
     std::string first_symbol;
 
     if (!(iss >> first_symbol)) {
-        assert(0);
-    }
-
-    if (IsComment(first_symbol)) {
+        return false; // spaces in line
+    } else if (IsComment(first_symbol)) {
         LogComment(line, line_num);
-        return;
-    }
-
-    if (first_symbol.back() == ':') {
+        return false;
+    } else if (first_symbol.back() == ':') {
         const std::string&& name = first_symbol.substr(0, first_symbol.size()-1);
-        currentFunction_ = new Function();
-        currentFunction_->SetName(name);
+        handler->OnFunction(name, line_num);
+        return true;
     } else {
-        Error e;
-        e << "ERROR: line " << line_num << ": ";
-        e << "expected colon at end of declaration of function " << line;
-        LOG(e.S().c_str());
-        result->AddError(e);
+        std::ostringstream oss;
+        oss << "Expected colon at end of declaration of function " << line;
+        handler->OnError(oss.str(), line_num);
+        error_ = true;
+        return false;
     }
 }
 
-void Parser::AddFunction(Parser::Result *result) {
-    result->AddFunction(*currentFunction_);
-    LOG("Added function with name %s", currentFunction_->Name().c_str());
+void Parser::ParseStatement(const std::string& line, int line_num, Parser::Handler *handler) {
+    LOG("Parsing statement");
 
-    delete currentFunction_;
-    currentFunction_ = nullptr;
-}
-
-void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser::Result *result) {
     std::stringstream ss(line);
     std::string first_symbol;
     if (!(ss >> first_symbol)) {
-        Error e;
-        e << "ERROR: line " << line_num << ": ";
-        e << "no instruction in statement: " << line;
-        LOG(e.S().c_str());
-        result->AddError(e);
-        return;
+        return; // spaces in line
     }
 
     if (IsComment(first_symbol)) {
@@ -98,80 +80,128 @@ void Parser::ParseAndAddStatement(const std::string& line, int line_num, Parser:
     }
 
     const std::string& instruction = first_symbol;
-    Statement statement;
-    statement.SetInstruction(instruction);
-    LOG("Setting statement instruction: %s", instruction.c_str());
+    handler->OnInstruction(instruction, line_num);
 
     std::string token;
     while (ss >> token) {
-        if (IsComment(token)) {
-            LogComment(line, line_num);
-            break;
-        }
+        switch (token[0]) {
+            case '#':
+                if (!ParseLiteralArg(token, line_num, handler)) {
+                    error_ = true;
+                    return;
+                }
+                break;
 
-        Arg a;
-        bool isReference = false;
-        bool isRegister = false;
-        int tokenStart = 0;
-        if (token.at(tokenStart) == '@') {
-            isReference = true;
-            tokenStart++;
-        }
-        if (token.at(tokenStart) == '%') {
-            if (token.at(tokenStart+1) != 'r') {
-                Error e;
-                e << "ERROR: line " << line_num << ": ";
-                e << "expected register identifier at character " << tokenStart+1 << " of token " << token;
-                LOG(e.S().c_str());
-                result->AddError(e);
-                return;
-            }
-            isRegister = true;
-            tokenStart += 2;
-        }
+            case '@':
+                if (!ParseReferenceArg(token, line_num, handler)) {
+                    error_ = true;
+                    return;
+                }
+                break;
 
-        const std::string&& realToken = token.substr(tokenStart);
-        Word value;
-        if (!ParseValue(realToken, &value)) {
-            Error e;
-            e << "ERROR: line " << line_num << ": ";
-            e << "failed to parse value from token " << realToken.c_str();
-            LOG(e.S().c_str());
-            assert(0);
-        }
+            case '%':
+                if (!ParseRegisterArg(token, line_num, false, handler)) {
+                    error_ = true;
+                    return;
+                }
+                break;
 
-        enum Parser::Arg::Type type;
-        if (isReference && isRegister) {
-            type = Parser::Arg::REGISTER_REFERENCE;
-        } else if (isReference) {
-            type = Parser::Arg::REFERENCE;
-        } else if (isRegister) {
-            type = Parser::Arg::REGISTER;
-        } else {
-            type = Parser::Arg::LITERAL;
+            case '$':
+                if (!ParseSymbolArg(token, line_num, handler)) {
+                    error_ = true;
+                    return;
+                }
+                break;
         }
-
-        a.SetValue(value);
-        a.SetType(type);
-        statement.AddArg(a);
-        LOG("Added instruction arg token/type: %d/%d", a.Value(), a.Type());
     }
-
-    currentFunction_->AddStatement(statement);
 }
 
-static bool ParseValue(const std::string& token, Word *value) {
-    if (token == "sp") {
-        *value = SP;
-        return true;
+bool Parser::ParseLiteralArg(const std::string& arg, int line_num, Parser::Handler *handler) {
+    LOG("Parsing literal arg %s", arg.c_str());
+
+    const std::string value = arg.substr(1);
+    if (value.size() == 0) {
+        std::ostringstream oss;
+        oss << "Empty literal " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else if (!IsValidValue(value)) {
+        std::ostringstream oss;
+        oss << "Invalid literal " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else {
+        handler->OnArg(Parser::Handler::LITERAL, value, line_num);
     }
 
+    return true;
+}
+
+bool Parser::ParseReferenceArg(const std::string& arg, int line_num, Parser::Handler *handler) {
+    LOG("Parsing reference arg %s", arg.c_str());
+
+    const std::string value = arg.substr(1);
+    if (value.size() == 0) {
+        std::ostringstream oss;
+        oss << "Empty reference " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else if (value[0] == '%') {
+        return ParseRegisterArg(value, line_num, true, handler);
+    } else if (!IsValidValue(value)) {
+        std::ostringstream oss;
+        oss << "Invalid reference " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else {
+        handler->OnArg(Parser::Handler::REFERENCE, value, line_num);
+    }
+
+    return true;
+}
+
+bool Parser::ParseRegisterArg(const std::string& arg, int line_num, bool is_reference, Parser::Handler *handler) {
+    LOG("Parsing register arg %s%s", arg.c_str(), is_reference ? " (reference)" : "");
+
+    if (arg.size() == 1) {
+        std::ostringstream oss;
+        oss << "Invalid syntax " << arg << " (did you mean '%r')";
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else if (arg.size() == 2) {
+        std::ostringstream oss;
+        oss << "Empty register " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else {
+        handler->OnArg((is_reference ? Parser::Handler::REGISTER_REFERENCE : Parser::Handler::REGISTER),
+                arg.substr(2), line_num);
+    }
+
+    return true;
+}
+
+bool Parser::ParseSymbolArg(const std::string& arg, int line_num, Parser::Handler *handler) {
+    LOG("Parsing literal arg %s", arg.c_str());
+
+    const std::string value = arg.substr(1);
+    if (value.size() == 0) {
+        std::ostringstream oss;
+        oss << "Empty symbol " << arg;
+        handler->OnError(oss.str(), line_num);
+        return false;
+    } else {
+        handler->OnArg(Parser::Handler::SYMBOL, value, line_num);
+    }
+    return true;
+}
+
+static bool IsValidValue(const std::string& token) {
     try {
         long long bigValue = std::stoll(token);
         if (bigValue > static_cast<long long>(INT32_MAX)) {
             return false;
         }
-        *value = static_cast<Word>(bigValue);
         return true;
     } catch (const std::exception& e) {
         return false;

@@ -1,13 +1,16 @@
 cc_test(
     name = "parser_test",
     srcs = ["parser_test.cc"],
-    copts = ["-Iexternal/gtest/googletest/include"],
+    copts = [
+        "-Iexternal/gtest/googletest/include",
+        "-Iexternal/gtest/googlemock/include",
+    ],
     deps = [
         "@gtest//:gtest",
-        "@gtest//:gtest_main",
+        "@gtest//:gmock",
+        "@gtest//:gmock_main",
         "//src/assembler:parser_lib",
         "//src/util:log_lib",
-        "//src/util:error_lib",
     ],
 )
 

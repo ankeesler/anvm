@@ -23,7 +23,7 @@ Here is a BNFish description of the language.
 <args>               ::= <arg> | <args> " " <arg>
 <arg>                ::= <value> | <register> | <reference> | <reference_register> | <symbol>
 <value>              ::= "#" <number>
-<register>           ::= "%r" <number> | "%r" "sp" | "%r" "pc"
+<register>           ::= "%r" <symbol>
 <reference>          ::= "@" <number>
 <reference_register> ::= "@" <register>
 <symbol>             ::= "$" <symbol>

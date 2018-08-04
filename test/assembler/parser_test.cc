@@ -3,204 +3,257 @@
 #include <map>
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "src/assembler/parser.h"
 #include "src/util/log.h"
-#include "src/util/error.h"
+
+using testing::Sequence;
+using testing::StrictMock;
+
+class TestHandler : public Parser::Handler {
+    public:
+        MOCK_METHOD2(OnError, void(const std::string& name, int line_num));
+        MOCK_METHOD2(OnFunction, void(const std::string& name, int line_num));
+        MOCK_METHOD2(OnInstruction, void(const std::string& name, int line_num));
+        MOCK_METHOD3(OnArg, void(enum Parser::Handler::ArgType type, const std::string& name, int line_num));
+};
 
 class BasicParserTest : public testing::Test {
     public:
         BasicParserTest() {
-            StdoutLog log;
-            Parser p(&log);
-            std::string text =
+            log_ = new StdoutLog();
+            parser_ = new Parser(log_);
+            const std::string text =
                 "tuna:\n"
-                "  LOAD 1 2\n"
+                "  LOAD #1 %r2\n"
                 "\n"
                 ";; here is a comment\n"
                 "fish: ;; here is another comment\n"
-                "  STORE 1 @2\n"
+                "  STORE #1 @2\n"
                 "  ADD      ;; here is yet another comment\n"
+                "  BRANCH $tuna\n"
+                "  LOAD @4 %rpc\n"
                 "\n"
                 "marlin:\n"
                 "  ;; here is srsly another comment\n"
-                "  LOAD 1 %r0\n"
-                "  LOAD @%r2 1\n"
+                "  LOAD #1 %r0\n"
+                "  LOAD @%r2 %r1\n"
                 "  MULTIPLY\n"
-                "  LOAD 0 %rsp\n";
-            std::stringstream is(text, std::ios_base::in);
-            p.Parse(is, &result_);
+                "  LOAD #0 %rsp\n";
+            is_ = new std::istringstream(text, std::ios_base::in);
+        }
+
+        ~BasicParserTest() {
+            delete log_;
+            delete parser_;
+            delete is_;
         }
 
     protected:
-        Parser::Result result_;
+        StdoutLog *log_;
+        Parser *parser_;
+        std::istringstream *is_;
+        StrictMock<TestHandler> handler_;
 };
 
-std::map<std::string, const Parser::Function*> *CollectFunctionMap(const std::vector<Parser::Function>& functions) {
-    std::map<std::string, const Parser::Function*> *m = new std::map<std::string, const Parser::Function*>();
-    for (unsigned int i = 0; i < functions.size(); i++) {
-        (*m)[functions[i].Name()] = &functions[i];
-    }
-    return m;
+TEST_F(BasicParserTest, KitchenSink) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "2", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnFunction("fish", 5)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("STORE", 6)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 6)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "2", 6)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("ADD", 7)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("BRANCH", 8)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::SYMBOL, "tuna", 8)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 9)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "4", 9)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "pc", 9)).InSequence(s);
+    EXPECT_CALL(handler_, OnFunction("marlin", 11)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 13)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 13)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "0", 13)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 14)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER_REFERENCE, "2", 14)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "1", 14)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("MULTIPLY", 15)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 16)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "0", 16)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "sp", 16)).InSequence(s);
+
+    parser_->Parse(*is_, &handler_);
 }
 
-std::map<std::string, const Parser::Statement*> *CollectStatementMap(const Parser::Function& function) {
-    std::map<std::string, const Parser::Statement*> *m = new std::map<std::string, const Parser::Statement*>();
-    const std::vector<Parser::Statement> statements = function.Statements();
-    for (unsigned int i = 0; i < statements.size(); i++) {
-        (*m)[statements[i].Instruction()] = &statements[i];
-    }
-    return m;
-}
+// Section: general negative tests
 
-TEST_F(BasicParserTest, FunctionNames) {
-    EXPECT_EQ(result_.Errors().size(), 0);
+TEST_F(BasicParserTest, SpacesInLine) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "2", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnFunction("fish", 5)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("STORE", 7)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 7)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "2", 7)).InSequence(s);
 
-    auto functions = result_.Functions();
-    EXPECT_EQ(functions.size(), 3);
-
-    auto functionMap = CollectFunctionMap(functions);
-    EXPECT_TRUE(functionMap->count("tuna") > 0);
-    EXPECT_TRUE(functionMap->count("fish") > 0);
-    EXPECT_TRUE(functionMap->count("marlin") > 0);
-}
-
-TEST_F(BasicParserTest, StatementInstructions) {
-    EXPECT_EQ(result_.Errors().size(), 0);
-
-    auto functionMap = CollectFunctionMap(result_.Functions());
-
-    const Parser::Function *function = functionMap->at("tuna");
-    auto statements = function->Statements();
-    EXPECT_EQ(statements.size(), 1);
-    EXPECT_EQ(statements[0].Instruction(), "LOAD");
-
-    function = functionMap->at("fish");
-    statements = function->Statements();
-    EXPECT_EQ(statements.size(), 2);
-    EXPECT_EQ(statements[0].Instruction(), "STORE");
-    EXPECT_EQ(statements[1].Instruction(), "ADD");
-
-    function = functionMap->at("marlin");
-    statements = function->Statements();
-    EXPECT_EQ(statements.size(), 4);
-    EXPECT_EQ(statements[0].Instruction(), "LOAD");
-    EXPECT_EQ(statements[1].Instruction(), "LOAD");
-    EXPECT_EQ(statements[2].Instruction(), "MULTIPLY");
-    EXPECT_EQ(statements[3].Instruction(), "LOAD");
-}
-
-TEST_F(BasicParserTest, StatementArgs) {
-    EXPECT_EQ(result_.Errors().size(), 0);
-
-    auto functionMap = CollectFunctionMap(result_.Functions());
-
-    const Parser::Function *function = functionMap->at("tuna");
-    auto statements = function->Statements();
-    auto args = statements[0].Args();
-    EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Value(), 1);
-    EXPECT_EQ(args[1].Value(), 2);
-
-    function = functionMap->at("fish");
-    statements = function->Statements();
-    args = statements[0].Args();
-    EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Value(), 1);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
-    EXPECT_EQ(args[1].Value(), 2);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::REFERENCE);
-    args = statements[1].Args();
-    EXPECT_EQ(args.size(), 0);
-
-    function = functionMap->at("marlin");
-    statements = function->Statements();
-    args = statements[0].Args();
-    EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Value(), 1);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
-    EXPECT_EQ(args[1].Value(), 0);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::REGISTER);
-    args = statements[1].Args();
-    EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Value(), 2);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::REGISTER_REFERENCE);
-    EXPECT_EQ(args[1].Value(), 1);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::LITERAL);
-    args = statements[2].Args();
-    EXPECT_EQ(args.size(), 0);
-    args = statements[3].Args();
-    EXPECT_EQ(args.size(), 2);
-    EXPECT_EQ(args[0].Value(), 0);
-    EXPECT_EQ(args[0].Type(), Parser::Arg::LITERAL);
-    EXPECT_EQ(args[1].Value(), -2);
-    EXPECT_EQ(args[1].Type(), Parser::Arg::REGISTER);
-}
-
-TEST(ParserTest, BadStatement) {
-    StdoutLog log;
-    Parser p(&log);
-    std::string text =
+    const std::string text =
         "tuna:\n"
-        "  LOAD 1 2\n"
+        "  LOAD #1 %r2\n"
         "\n"
+        "  \n"
         "fish:\n"
         "  \n"
-        "\n"
-        "marlin:\n"
-        "  LOAD 1 %r0\n"
-        "  LOAD @%r2 1\n"
-        "  MULTIPLY\n"
-        "  LOADR 0 %rsp\n";
-    std::stringstream is(text, std::ios_base::in);
-    Parser::Result result;
-    p.Parse(is, &result);
-    std::string errorString;
-    EXPECT_EQ(result.Errors().size(), 1);
-    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 5: no instruction in statement:   ");;
+        "  STORE #1 @2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
 }
 
-TEST(ParserTest, PartialRegisterSyntax) {
-    StdoutLog log;
-    Parser p(&log);
-    std::string text =
-        "tuna:\n"
-        "  LOAD 1 2\n"
-        "\n"
-        "fish:\n"
-        "  LOAD 1 2\n"
-        "\n"
-        "marlin:\n"
-        "  LOAD 1 %r0\n"
-        "  LOAD @%2 1\n"
-        "  MULTIPLY\n"
-        "  LOADR 0 %rsp\n";
-    std::stringstream is(text, std::ios_base::in);
-    Parser::Result result;
-    p.Parse(is, &result);
-    std::string errorString;
-    EXPECT_EQ(result.Errors().size(), 1);
-    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 9: expected register identifier at character 2 of token @%2");
-}
+TEST_F(BasicParserTest, NoColon) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "2", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Expected colon at end of declaration of function fish", 4)).InSequence(s);
 
-TEST(ParserTest, NoColonFunction) {
-    StdoutLog log;
-    Parser p(&log);
-    std::string text =
+    const std::string text =
         "tuna:\n"
-        "  LOAD 1 2\n"
+        "  LOAD #1 %r2\n"
         "\n"
         "fish\n"
-        "  LOAD 1 2\n"
-        "\n"
-        "marlin:\n"
-        "  LOAD 1 %r0\n"
-        "  LOAD @%2 1\n"
-        "  MULTIPLY\n"
-        "  LOADR 0 %rsp\n";
-    std::stringstream is(text, std::ios_base::in);
-    Parser::Result result;
-    p.Parse(is, &result);
-    EXPECT_EQ(result.Errors().size(), 1);
-    EXPECT_EQ(result.Errors()[0].S(), "ERROR: line 4: expected colon at end of declaration of function fish");
+        "  STORE #1 @2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+// Section: bad literal args
+
+TEST_F(BasicParserTest, BadLiteral) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Invalid literal #a", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD #a %r2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+TEST_F(BasicParserTest, EmptyLiteral) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Empty literal #", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD # %r2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+TEST_F(BasicParserTest, TooBigLiteral) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Invalid literal #12147483647", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "LOAD #12147483647 %r0\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+// Section: bad reference args
+
+TEST_F(BasicParserTest, BadReference) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Invalid reference @tuna", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD @tuna %r2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+TEST_F(BasicParserTest, EmptyReference) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Empty reference @", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD @ %r2\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+TEST_F(BasicParserTest, TooBigReference) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Invalid reference @12147483647", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "LOAD @12147483647 %r0\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+// Section: bad register args
+
+TEST_F(BasicParserTest, EmptyRegister) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "5", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Empty register %r", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD @5 %r\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+TEST_F(BasicParserTest, PartialRegister) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "5", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Invalid syntax % (did you mean '%r')", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  LOAD @5 %\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
+}
+
+// Section: bad symbol args
+
+TEST_F(BasicParserTest, EmptySymbol) {
+    Sequence s;
+    EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
+    EXPECT_CALL(handler_, OnInstruction("BRANCH", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnError("Empty symbol $", 2)).InSequence(s);
+
+    const std::string text =
+        "tuna:\n"
+        "  BRANCH $\n";
+    std::istringstream iss(text);
+    parser_->Parse(iss, &handler_);
 }
