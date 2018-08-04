@@ -1,15 +1,16 @@
-tuna:
-	LOAD 1 0
-	LOAD 2 1
-	MULTIPLY
-	LOAD %r0 %r2 ;; this is a comment
-	LOAD %r1 %r1
+op1:                 ;; takes one parameter, a "seed"
+	LOAD #1 %r1
+	ADD              ;; "seed" += 1
+	LOAD %r0, %r1
+	MULTIPLY         ;; "seed" *= "seed"
+	STORE #2 @64
+	LOAD @64 %r1
+	DIVIDE           ;; "seed" /= 2
+	LOAD #3 %r0
+	SUBTRACT         ;; "seed" -= 3
+                     ;; return "seed"
 
-fish: ;; this is a comment
-	STORE %r0 @%rsp
-	LOAD %rsp %r0
-	LOAD 4 %r1
-	ADD
-	LOAD %r0 %rsp
-
-;; this is a comment
+main:
+	LOAD #5 %r0
+	BRANCH $op1      ;; op1(5)
+	STORE %r0 @64
