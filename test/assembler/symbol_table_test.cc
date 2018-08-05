@@ -29,19 +29,26 @@ TEST(SymbolTableTest, Basic) {
     marlin2Fcn.AddWord(50);
 
     SymbolTable st(new StdoutLog);
-    st.AddFunction(tunaFcn);
-    st.AddFunction(marlin1Fcn);
-    st.AddFunction(marlin2Fcn);
+    SymbolTable::Function *tunaFcnPtr = st.AddFunction(tunaFcn);
+    SymbolTable::Function *marlin1FcnPtr = st.AddFunction(marlin1Fcn);
+    SymbolTable::Function *marlin2FcnPtr = st.AddFunction(marlin2Fcn);
+
+    EXPECT_THAT(tunaFcnPtr->Name(), Eq("tuna"));
+    EXPECT_THAT(marlin1FcnPtr->Name(), Eq("marlin"));
+    EXPECT_THAT(marlin2FcnPtr->Name(), Eq("marlin"));
 
     const std::vector<std::string>& names = st.FunctionNames();
     EXPECT_THAT(names, ElementsAre("tuna", "marlin"));
 
-    std::vector<SymbolTable::Function> functions = st.FindFunctions("tuna");
+    std::vector<SymbolTable::Function*> functions = st.FindFunctions("tuna");
     EXPECT_THAT(functions, SizeIs(1));
-    EXPECT_THAT(functions[0], Eq(tunaFcn));
+    EXPECT_THAT(*functions[0], Eq(tunaFcn));
+    EXPECT_THAT(*functions[0], Eq(*tunaFcnPtr));
 
     functions = st.FindFunctions("marlin");
     EXPECT_THAT(functions, SizeIs(2));
-    EXPECT_THAT(functions[0], Eq(marlin1Fcn));
-    EXPECT_THAT(functions[1], Eq(marlin2Fcn));
+    EXPECT_THAT(*functions[0], Eq(marlin1Fcn));
+    EXPECT_THAT(*functions[0], Eq(*marlin1FcnPtr));
+    EXPECT_THAT(*functions[1], Eq(marlin2Fcn));
+    EXPECT_THAT(*functions[1], Eq(*marlin2FcnPtr));
 }

@@ -26,15 +26,16 @@ class SymbolTable {
         };
 
         SymbolTable(Log *log) : log_(log) { }
+        ~SymbolTable();
 
         const std::vector<std::string>& FunctionNames() const;
-        const std::vector<Function>& FindFunctions(const std::string& name);
-        void AddFunction(const Function& function);
+        const std::vector<Function*>& FindFunctions(const std::string& name);
+        Function *AddFunction(const Function& function);
 
     private:
         Log *log_;
         std::vector<std::string> names_;
-        std::map<std::string, std::vector<Function>> functions_;
+        std::map<std::string, std::vector<Function*>> functions_;
 };
 
 #endif // ANVM_SRC_ASSEMBLER_SYMBOL_TABLE_H_
