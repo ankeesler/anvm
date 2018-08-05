@@ -32,6 +32,20 @@ cc_library(
 )
 
 cc_library(
+    name = "symbol_table_populator_lib",
+    srcs = ["symbol_table_populator.cc"],
+    hdrs = ["symbol_table_populator.h"],
+    deps = [
+        ":parser_lib",
+        ":symbol_table_lib",
+        "//src/util:log_lib",
+        "//src/util:error_lib",
+        "//src:core_lib",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
     name = "assembler_lib",
     srcs = ["assembler.cc"],
     hdrs = ["assembler.h"],
