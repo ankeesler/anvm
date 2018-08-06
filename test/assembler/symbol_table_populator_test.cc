@@ -150,5 +150,24 @@ TEST(SymbolTablePopulatorTest, ArgBeforeInstruction) {
     EXPECT_THAT(stp.Errors(), ElementsAre(Error("Received arg '2' before instruction on line 10")));
 }
 
+TEST(SymbolTablePopulatorTest, AAA) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnFunction("tuna", 9);
+    stp.OnInstruction("LOAD", 6);
+    stp.OnArg(Parser::Handler::LITERAL, "0", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 6);
+
+    ASSERT_THAT(stp.Errors(), IsEmpty());
+
+    const std::vector<SymbolTable::Function*>& tunaFunctions = st.FindFunctions("tuna");
+    EXPECT_THAT(tunaFunctions, SizeIs(1));
+    EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    Word tunaWords[] = { ILOAD, 0, 2, };
+    EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+}
+
 // We test all instructions that are in cpu.h
 // On arg that doesn't make sense for instruction, we error (not enough args)
