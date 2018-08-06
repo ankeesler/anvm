@@ -15,6 +15,7 @@ typedef int32_t Word;
 #define STATUS_FAILURE (STATUS_UNKNOWNI | STATUS_DIVZERO | STATUS_BADACCESS | STATUS_BADREGISTER)
 
 #define SP ((Word)-2)
+#define PC ((Word)-3)
 
 #define IEXIT ((Word)-1) /* the program is done */
 

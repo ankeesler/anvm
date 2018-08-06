@@ -10,19 +10,11 @@
 
 class SymbolTable {
     public:
-        class Function {
-            public:
-                bool operator==(const Function& f) const { return name_ == f.name_ && words_ == f.words_; }
+        struct Function {
+            bool operator==(const Function& f) const { return name == f.name && words == f.words; }
 
-                const std::string& Name() const { return name_; }
-                void SetName(const std::string& name) { name_ = name; }
-
-                const std::vector<Word> Words() const { return words_; }
-                void AddWord(Word w) { words_.push_back(w); }
-
-            private:
-                std::string name_;
-                std::vector<Word> words_;
+            std::string name;
+            std::vector<Word> words;
         };
 
         SymbolTable(Log *log) : log_(log) { }

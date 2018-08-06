@@ -21,7 +21,9 @@ class SymbolTablePopulator : public Parser::Handler {
         void OnArg(enum ArgType type, const std::string& name, int line_num);
 
     private:
-        bool GetLoadInstruction(const std::string& name, int line_num, Word *w);
+        bool GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
+        bool GetStoreInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
+        bool GetBranchInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
 
         Log *log_;
         SymbolTable *st_;

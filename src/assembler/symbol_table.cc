@@ -31,7 +31,7 @@ const std::vector<SymbolTable::Function*>& SymbolTable::FindFunctions(const std:
 }
 
 SymbolTable::Function *SymbolTable::AddFunction(const SymbolTable::Function& function) {
-    const std::string& name = function.Name();
+    const std::string& name = function.name;
     LOG("Adding function for name %s", name.c_str());
 
     Function *f = new Function(function);
