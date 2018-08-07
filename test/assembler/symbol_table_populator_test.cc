@@ -150,7 +150,7 @@ TEST(SymbolTablePopulatorTest, ArgBeforeInstruction) {
     EXPECT_THAT(stp.Errors(), ElementsAre(Error("Received arg '2' before instruction on line 10")));
 }
 
-TEST(SymbolTablePopulatorTest, AAA) {
+TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
     Log *log = new StdoutLog();
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);

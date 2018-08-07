@@ -4,22 +4,22 @@
 #include <ostream>
 #include <vector>
 
-#include "parser.h"
-#include "src/cpu.h"
+#include "symbol_table.h"
 #include "src/program.h"
 #include "src/util/log.h"
+#include "src/util/error.h"
 
 class Linker {
     public:
         Linker(Log *log) : log_(log) { }
 
-        const char *Link(const Parser::Result& result, Program *program);
+        Error Link(const SymbolTable& st, Program *program);
 
     private:
-        const char *WriteFunction(const Parser::Function& function, Program *program);
-        const char *WriteStatement(const Parser::Statement& statement, Program *program);
-        const char *WriteLoadStatement(const Parser::Statement& statement, Program *program);
-        const char *WriteStoreStatement(const Parser::Statement& statement, Program *program);
+        Error WriteFunction(Program *program);
+        Error WriteStatement(Program *program);
+        Error WriteLoadStatement(Program *program);
+        Error WriteStoreStatement(Program *program);
 
         Log *log_;
 };

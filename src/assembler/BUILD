@@ -13,9 +13,10 @@ cc_library(
     srcs = ["linker.cc"],
     hdrs = ["linker.h"],
     deps = [
-        "//src/util:log_lib",
-        ":parser_lib",
+        ":symbol_table_lib",
         "//src:core_lib",
+        "//src/util:log_lib",
+        "//src/util:error_lib",
     ],
     visibility = ["//visibility:public"],
 )
@@ -51,6 +52,8 @@ cc_library(
     hdrs = ["assembler.h"],
     deps = [
         ":parser_lib",
+        ":symbol_table_populator_lib",
+        ":symbol_table_lib",
         ":linker_lib",
         "//src/util:program_writer_lib",
         "//src/util:error_lib",
