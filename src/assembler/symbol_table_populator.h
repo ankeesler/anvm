@@ -27,7 +27,7 @@ class SymbolTablePopulator : public Parser::Handler {
 
         Log *log_;
         SymbolTable *st_;
-        SymbolTable::Function *currentFunction_;
+        Symbol *currentFunction_;
         std::vector<Error> errors_;
 };
 

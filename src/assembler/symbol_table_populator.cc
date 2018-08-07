@@ -29,9 +29,9 @@ void SymbolTablePopulator::OnError(const std::string& s, int line_num) {
 void SymbolTablePopulator::OnFunction(const std::string& name, int line_num) {
     LOG("Function %s found on line %d", name.c_str(), line_num);
 
-    SymbolTable::Function f;
-    f.name = name;
-    currentFunction_ = st_->AddFunction(f);
+    Symbol s(name, false, Symbol::FUNCTION);
+    s.name = name;
+    currentFunction_ = st_->AddSymbol(s);
 }
 
 void SymbolTablePopulator::OnInstruction(const std::string& name, int line_num) {

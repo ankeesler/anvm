@@ -47,13 +47,13 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
 
     ASSERT_THAT(stp.Errors(), IsEmpty());
 
-    const std::vector<SymbolTable::Function*>& tunaFunctions = st.FindFunctions("tuna");
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     Word tunaWords[] = { ILOAD, 1, 0, IBRANCHX, 20, IMULTIPLY, ILOADR, 2, 2, ILOADM, 64, 3, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 
-    const std::vector<SymbolTable::Function*>& fishFunctions = st.FindFunctions("fish");
+    const std::vector<Symbol*>& fishFunctions = st.Symbols("fish");
     EXPECT_THAT(fishFunctions, SizeIs(1));
     EXPECT_THAT(fishFunctions[0]->name, Eq("fish"));
     Word fishWords[] = { ISTORE, 100, 64, IADD, ISTORER, 1, 64, IDIVIDE, ISUBTRACT, };
@@ -75,7 +75,7 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
 
     ASSERT_THAT(stp.Errors(), IsEmpty());
 
-    const std::vector<SymbolTable::Function*>& tunaFunctions = st.FindFunctions("tuna");
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     Word tunaWords[] = { ILOAD, 1, -2, ISTORER, -3, 64, };
@@ -162,7 +162,7 @@ TEST(SymbolTablePopulatorTest, AAA) {
 
     ASSERT_THAT(stp.Errors(), IsEmpty());
 
-    const std::vector<SymbolTable::Function*>& tunaFunctions = st.FindFunctions("tuna");
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     Word tunaWords[] = { ILOAD, 0, 2, };
