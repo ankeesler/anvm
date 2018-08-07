@@ -12,43 +12,50 @@ using testing::IsEmpty;
 using testing::Eq;
 
 TEST(SymbolTableTest, Basic) {
-    SymbolTable::Function tunaFcn;
-    tunaFcn.name = "tuna";
-    tunaFcn.words.push_back(1);
-    tunaFcn.words.push_back(2);
-    tunaFcn.words.push_back(3);
+    Symbol tunaSymbol("tuna", true, Symbol::FUNCTION);
+    tunaSymbol.words.push_back(1);
+    tunaSymbol.words.push_back(2);
+    tunaSymbol.words.push_back(3);
 
-    SymbolTable::Function marlin1Fcn;
-    marlin1Fcn.name = "marlin";
-    marlin1Fcn.words.push_back(20);
-    marlin1Fcn.words.push_back(30);
+    Symbol marlin1Symbol("marlin", true, Symbol::FUNCTION);
+    marlin1Symbol.words.push_back(20);
+    marlin1Symbol.words.push_back(30);
 
-    SymbolTable::Function marlin2Fcn;
-    marlin2Fcn.name = "marlin";
-    marlin2Fcn.words.push_back(40);
-    marlin2Fcn.words.push_back(50);
+    Symbol marlin2Symbol("marlin", false, Symbol::FUNCTION);
+
+    Symbol fishSymbol("fish", false, Symbol::FUNCTION);
 
     SymbolTable st(new StdoutLog);
-    SymbolTable::Function *tunaFcnPtr = st.AddFunction(tunaFcn);
-    SymbolTable::Function *marlin1FcnPtr = st.AddFunction(marlin1Fcn);
-    SymbolTable::Function *marlin2FcnPtr = st.AddFunction(marlin2Fcn);
+    Symbol *tunaSymbolPtr = st.AddSymbol(tunaSymbol);
+    Symbol *marlin1SymbolPtr = st.AddSymbol(marlin1Symbol);
+    Symbol *marlin2SymbolPtr = st.AddSymbol(marlin2Symbol);
+    Symbol *fishSymbolPtr = st.AddSymbol(fishSymbol);
 
-    EXPECT_THAT(tunaFcnPtr->name, Eq("tuna"));
-    EXPECT_THAT(marlin1FcnPtr->name, Eq("marlin"));
-    EXPECT_THAT(marlin2FcnPtr->name, Eq("marlin"));
+    EXPECT_THAT(tunaSymbolPtr->name, Eq("tuna"));
+    EXPECT_THAT(marlin1SymbolPtr->name, Eq("marlin"));
+    EXPECT_THAT(marlin2SymbolPtr->name, Eq("marlin"));
+    EXPECT_THAT(fishSymbolPtr->name, Eq("fish"));
 
-    const std::vector<std::string>& names = st.FunctionNames();
-    EXPECT_THAT(names, ElementsAre("tuna", "marlin"));
+    const std::vector<std::string>& names = st.SymbolNames();
+    EXPECT_THAT(names, ElementsAre("tuna", "marlin", "fish"));
 
-    std::vector<SymbolTable::Function*> functions = st.FindFunctions("tuna");
-    EXPECT_THAT(functions, SizeIs(1));
-    EXPECT_THAT(*functions[0], Eq(tunaFcn));
-    EXPECT_THAT(*functions[0], Eq(*tunaFcnPtr));
+    std::vector<Symbol*> symbols = st.Symbols("tuna");
+    EXPECT_THAT(symbols, SizeIs(1));
+    EXPECT_THAT(*symbols[0], Eq(tunaSymbol));
+    EXPECT_THAT(*symbols[0], Eq(*tunaSymbolPtr));
 
-    functions = st.FindFunctions("marlin");
-    EXPECT_THAT(functions, SizeIs(2));
-    EXPECT_THAT(*functions[0], Eq(marlin1Fcn));
-    EXPECT_THAT(*functions[0], Eq(*marlin1FcnPtr));
-    EXPECT_THAT(*functions[1], Eq(marlin2Fcn));
-    EXPECT_THAT(*functions[1], Eq(*marlin2FcnPtr));
+    symbols = st.Symbols("marlin");
+    EXPECT_THAT(symbols, SizeIs(2));
+    EXPECT_THAT(*symbols[0], Eq(marlin1Symbol));
+    EXPECT_THAT(*symbols[0], Eq(*marlin1SymbolPtr));
+    EXPECT_THAT(*symbols[1], Eq(marlin2Symbol));
+    EXPECT_THAT(*symbols[1], Eq(*marlin2SymbolPtr));
+
+    symbols = st.Symbols("fish");
+    EXPECT_THAT(symbols, SizeIs(1));
+    EXPECT_THAT(*symbols[0], Eq(fishSymbol));
+    EXPECT_THAT(*symbols[0], Eq(*fishSymbolPtr));
+
+    symbols = st.Symbols("invalid symbol");
+    EXPECT_THAT(symbols, SizeIs(0));
 }

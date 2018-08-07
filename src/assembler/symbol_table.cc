@@ -8,38 +8,33 @@
 #define LOG(...) log_->Printf("symbol_table", __FILE__, __LINE__, __VA_ARGS__)
 
 SymbolTable::~SymbolTable() {
-    for (std::map<std::string, std::vector<Function*>>::const_iterator it = functions_.cbegin();
-            it != functions_.cend();
+    for (std::map<std::string, std::vector<Symbol*>>::const_iterator it = symbols_.cbegin();
+            it != symbols_.cend();
             ++it) {
-        for (const Function *function : it->second) {
-            delete function;
+        for (const Symbol *symbol : it->second) {
+            delete symbol;
         }
     }
 }
 
-const std::vector<std::string>& SymbolTable::FunctionNames() const {
-    return names_;
-}
-
-const std::vector<SymbolTable::Function*>& SymbolTable::FindFunctions(const std::string& name) {
-    if (functions_.count(name) == 0) {
-        std::vector<SymbolTable::Function*> empty;
+const std::vector<Symbol*>& SymbolTable::Symbols(const std::string& name) {
+    if (symbols_.count(name) == 0) {
+        std::vector<Symbol*> empty;
         return std::move(empty);
     } else {
-        return functions_[name];
+        return symbols_[name];
     }
 }
 
-SymbolTable::Function *SymbolTable::AddFunction(const SymbolTable::Function& function) {
-    const std::string& name = function.name;
-    LOG("Adding function for name %s", name.c_str());
+Symbol *SymbolTable::AddSymbol(const Symbol& symbol) {
+    const std::string& name = symbol.name;
+    LOG("Adding symbol for name %s", name.c_str());
 
-    Function *f = new Function(function);
-    if (functions_.count(name) == 0) {
+    Symbol *s = new Symbol(symbol);
+    if (symbols_.count(name) == 0) {
         names_.push_back(name);
     }
-    std::vector<SymbolTable::Function*>& v = functions_[name];
-    v.push_back(f);
+    symbols_[name].push_back(s);
 
-    return f;
+    return s;
 }
