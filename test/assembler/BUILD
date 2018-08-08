@@ -25,9 +25,11 @@ cc_test(
         "@gtest//:gtest",
         "@gtest//:gmock",
         "@gtest//:gmock_main",
-        "//src/assembler:parser_lib",
         "//src/assembler:linker_lib",
+        "//src/assembler:symbol_table_lib",
+        "//src:core_lib",
         "//src/util:log_lib",
+        "//src/util:error_lib",
     ],
 )
 

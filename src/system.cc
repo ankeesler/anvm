@@ -1,5 +1,7 @@
 #include "system.h"
 
+#include <vector>
+
 #include "program.h"
 #include "cpu.h"
 

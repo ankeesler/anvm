@@ -12,18 +12,18 @@ using testing::IsEmpty;
 using testing::Eq;
 
 TEST(SymbolTableTest, Basic) {
-    Symbol tunaSymbol("tuna", true, Symbol::FUNCTION);
+    Symbol tunaSymbol("tuna", true, 1, Symbol::FUNCTION);
     tunaSymbol.words.push_back(1);
     tunaSymbol.words.push_back(2);
     tunaSymbol.words.push_back(3);
 
-    Symbol marlin1Symbol("marlin", true, Symbol::FUNCTION);
+    Symbol marlin1Symbol("marlin", true, 11, Symbol::FUNCTION);
     marlin1Symbol.words.push_back(20);
     marlin1Symbol.words.push_back(30);
 
-    Symbol marlin2Symbol("marlin", false, Symbol::FUNCTION);
+    Symbol marlin2Symbol("marlin", false, 6, Symbol::FUNCTION);
 
-    Symbol fishSymbol("fish", false, Symbol::FUNCTION);
+    Symbol fishSymbol("fish", false, 9, Symbol::FUNCTION);
 
     SymbolTable st(new StdoutLog);
     Symbol *tunaSymbolPtr = st.AddSymbol(tunaSymbol);

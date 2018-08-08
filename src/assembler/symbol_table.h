@@ -14,18 +14,20 @@ struct Symbol {
         VARIABLE,
     };
 
-    Symbol(const std::string& name, bool resolved, enum Type type)
-        : name(name), resolved(resolved), type(type) { }
+    Symbol(const std::string& name, bool resolved, Word address, enum Type type)
+        : name(name), resolved(resolved), address(address), type(type) { }
 
     bool operator==(const Symbol& s) const {
         return (name == s.name
                 && resolved == s.resolved
+                && address == s.address
                 && type == s.type
                 && words == s.words);
     }
 
     std::string name;
     bool resolved;
+    Word address;
     enum Type type;
     std::vector<Word> words;
 };
@@ -36,7 +38,7 @@ class SymbolTable {
         ~SymbolTable();
 
         const std::vector<std::string>& SymbolNames() const { return names_; }
-        const std::vector<Symbol*>& Symbols(const std::string& name);
+        const std::vector<Symbol*>& Symbols(const std::string& name) const;
 
         Symbol *AddSymbol(const Symbol& symbol);
 

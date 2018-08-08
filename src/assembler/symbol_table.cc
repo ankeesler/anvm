@@ -17,12 +17,12 @@ SymbolTable::~SymbolTable() {
     }
 }
 
-const std::vector<Symbol*>& SymbolTable::Symbols(const std::string& name) {
+const std::vector<Symbol*>& SymbolTable::Symbols(const std::string& name) const {
     if (symbols_.count(name) == 0) {
         std::vector<Symbol*> empty;
         return std::move(empty);
     } else {
-        return symbols_[name];
+        return symbols_.at(name);
     }
 }
 

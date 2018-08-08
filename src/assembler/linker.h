@@ -16,11 +16,6 @@ class Linker {
         Error Link(const SymbolTable& st, Program *program);
 
     private:
-        Error WriteFunction(Program *program);
-        Error WriteStatement(Program *program);
-        Error WriteLoadStatement(Program *program);
-        Error WriteStoreStatement(Program *program);
-
         Log *log_;
 };
 

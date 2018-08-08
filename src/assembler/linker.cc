@@ -1,6 +1,8 @@
 #include "linker.h"
 
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 #include <ostream>
 #include <vector>
 #include <map>
@@ -12,114 +14,75 @@
 
 #define LOG(...) log_->Printf("linker", __FILE__, __LINE__, __VA_ARGS__)
 
+static Error ResolveSymbols(const SymbolTable& st,
+        std::map<std::string, const Symbol*> *resolved,
+        std::map<Word, std::string> *unresolved);
+
 Error Linker::Link(const SymbolTable& st, Program *program) {
     LOG("Starting linker");
+    std::map<std::string, const Symbol*> resolvedSymbols;
+    std::map<Word, std::string> unresolvedSymbols;
+    Error error = ResolveSymbols(st, &resolvedSymbols, &unresolvedSymbols);
+    if (error) {
+        LOG("Failed to resolve symbols: %s", error.S().c_str());
+        return error;
+    }
 
-    //for (const Parser::Function& function : result.Functions()) {
-    //    const char *error = WriteFunction(function, program);
-    //    if (error != nullptr) {
-    //        return error;
-    //    }
-    //}
+    for (const std::pair<std::string, const Symbol *>& kv : resolvedSymbols) {
+        const std::string& name = kv.first;
+        const Symbol *symbol = resolvedSymbols[name];
+        program->AddWords(symbol->address, symbol->words);
+        LOG("Added symbol %s at address 0x%08X (length = %d)", name.c_str(), symbol->address, symbol->words.size());
+    }
 
-    //program->AddWord(IEXIT);
+    for (const std::pair<Word, std::string>& kv : unresolvedSymbols) {
+        Word address = kv.first;
+        const std::string& name = kv.second;
+        const Symbol *symbol = resolvedSymbols[name];
+        program->AddWord(address, symbol->address);
+        LOG("Resolving symbol %s at address 0x%08X", name.c_str(), address);
+    }
 
     LOG("Returning from linker");
     return Error::NONE;
 }
 
-Error Linker::WriteFunction(Program *program) {
-    LOG("Writing function");
+static Error ResolveSymbols(const SymbolTable& st,
+        std::map<std::string, const Symbol*> *resolved,
+        std::map<Word, std::string> *unresolved) {
+    Error e;
 
-    //for (const Parser::Statement& statement : function.Statements()) {
-    //    const char *error = WriteStatement(statement, program);
-    //    if (error != nullptr) {
-    //        return error;
-    //    }
-    //}
+    const std::vector<std::string>& names = st.SymbolNames();
+    for (const std::string& name : names) {
+        std::vector<Symbol*> symbols = st.Symbols(name);
+        std::vector<Word> unresolvedAddresses;
+        for (const Symbol *symbol : symbols) {
+            if (symbol->resolved) {
+                if (resolved->count(name) > 0) {
+                    e << "Duplicate symbol " << name << " at address " << symbol->address << "\n";
+                } else {
+                    resolved->insert(std::pair<std::string, const Symbol*>(name, symbol));
+                }
+            } else {
+                unresolvedAddresses.push_back(symbol->address);
+            }
+        }
 
-    return Error::NONE;
-}
+        if (resolved->count(name) == 0) {
+            e << "Unresolved symbol " << name << " at addresses ";
+            for (Word address : unresolvedAddresses) {
+                char hex[9]; // 0x000000 + '\0'
+                memset(hex, 0, sizeof(hex));
+                sprintf(hex, "0x%08X", address);
+                e << hex << " ";
+            }
+            e << "\n";
+        } else {
+            for (Word address : unresolvedAddresses) {
+                unresolved->insert(std::pair<Word, std::string>(address, name));
+            }
+        }
+    }
 
-Error Linker::WriteStatement(Program *program) {
-    LOG("Writing statement");
-
-    //const std::string& instruction = statement.Instruction();
-    //if (instruction == "LOAD") {
-    //    return WriteLoadStatement(statement, program);
-    //} else if (instruction == "STORE") {
-    //    return WriteStoreStatement(statement, program);
-    //} else {
-    //    if (instruction_map.count(instruction) == 0) {
-    //        assert(0);
-    //    }
-    //    Word instructionWord = instruction_map[instruction];
-    //    program->AddWord(instructionWord);
-    //}
-
-    return Error::NONE;
-}
-
-Error Linker::WriteLoadStatement(Program *program) {
-    //const std::vector<Parser::Arg>& args = statement.Args();
-    //if (args.size() != 2) {
-    //    LOG("ERROR: LOAD expects 2 args, got %d", args.size());
-    //    assert(0);
-    //}
-
-    //Word instructionWord;
-    //switch (args[0].Type()) {
-    //    case Parser::Arg::LITERAL:
-    //        instructionWord = ILOAD;
-    //        break;
-
-    //    case Parser::Arg::REGISTER:
-    //        instructionWord = ILOADR;
-    //        break;
-
-    //    case Parser::Arg::REFERENCE:
-    //        instructionWord = ILOADM;
-    //        break;
-
-    //    default:
-    //        LOG("ERROR: unexpected type of arg: %d", args[0].Type());
-    //        assert(0);
-    //}
-
-    //program->AddWord(instructionWord);
-    //for (const Parser::Arg& arg : args) {
-    //    program->AddWord(arg.Value());
-    //}
-
-    return Error::NONE;
-}
-
-Error Linker::WriteStoreStatement(Program *program) {
-    //const std::vector<Parser::Arg>& args = statement.Args();
-    //if (args.size() != 2) {
-    //    LOG("ERROR: STORE expects 2 args, got %d", args.size());
-    //    assert(0);
-    //}
-
-    //Word instructionWord;
-    //switch (args[0].Type()) {
-    //    case Parser::Arg::LITERAL:
-    //        instructionWord = ISTORE;
-    //        break;
-
-    //    case Parser::Arg::REGISTER:
-    //        instructionWord = ISTORER;
-    //        break;
-
-    //    default:
-    //        LOG("ERROR: unexpected type of arg: %d", args[0].Type());
-    //        assert(0);
-    //}
-
-    //program->AddWord(instructionWord);
-    //for (const Parser::Arg& arg : args) {
-    //    program->AddWord(arg.Value());
-    //}
-
-    return Error::NONE;
+    return e;
 }
