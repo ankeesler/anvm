@@ -19,10 +19,12 @@ class Parser {
                     SYMBOL,
                 };
 
+                virtual void OnStart() = 0;
                 virtual void OnError(const std::string& s, int line_num) = 0;
                 virtual void OnFunction(const std::string& name, int line_num) = 0;
                 virtual void OnInstruction(const std::string& name, int line_num) = 0;
                 virtual void OnArg(enum ArgType type, const std::string& name, int line_num) = 0;
+                virtual void OnEnd() = 0;
         };
 
         Parser(Log *log) : log_(log) { }

@@ -15,10 +15,12 @@ class SymbolTablePopulator : public Parser::Handler {
 
         const std::vector<Error>& Errors() const { return errors_; }
 
+        void OnStart();
         void OnError(const std::string& s, int line_num);
         void OnFunction(const std::string& name, int line_num);
         void OnInstruction(const std::string& name, int line_num);
         void OnArg(enum ArgType type, const std::string& name, int line_num);
+        void OnEnd();
 
     private:
         bool GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);

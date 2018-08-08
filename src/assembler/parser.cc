@@ -17,6 +17,7 @@ static bool IsComment(const std::string& s);
 
 void Parser::Parse(std::istream& is, Parser::Handler *handler) {
     LOG("Starting to parse input stream");
+    handler->OnStart();
 
     std::string line;
     int line_num = 1;
@@ -39,6 +40,9 @@ void Parser::Parse(std::istream& is, Parser::Handler *handler) {
 
         line_num++;
     }
+
+    handler->OnEnd();
+    LOG("Done parsing input stream");
 }
 
 bool Parser::ParseFunction(const std::string& line, int line_num, Parser::Handler *handler) {

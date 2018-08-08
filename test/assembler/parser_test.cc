@@ -13,10 +13,12 @@ using testing::StrictMock;
 
 class TestHandler : public Parser::Handler {
     public:
+        MOCK_METHOD0(OnStart, void());
         MOCK_METHOD2(OnError, void(const std::string& name, int line_num));
         MOCK_METHOD2(OnFunction, void(const std::string& name, int line_num));
         MOCK_METHOD2(OnInstruction, void(const std::string& name, int line_num));
         MOCK_METHOD3(OnArg, void(enum Parser::Handler::ArgType type, const std::string& name, int line_num));
+        MOCK_METHOD0(OnEnd, void());
 };
 
 class BasicParserTest : public testing::Test {
@@ -59,6 +61,7 @@ class BasicParserTest : public testing::Test {
 
 TEST_F(BasicParserTest, KitchenSink) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
@@ -84,6 +87,7 @@ TEST_F(BasicParserTest, KitchenSink) {
     EXPECT_CALL(handler_, OnInstruction("LOAD", 16)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "0", 16)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "sp", 16)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     parser_->Parse(*is_, &handler_);
 }
@@ -92,6 +96,7 @@ TEST_F(BasicParserTest, KitchenSink) {
 
 TEST_F(BasicParserTest, SpacesInLine) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
@@ -100,6 +105,7 @@ TEST_F(BasicParserTest, SpacesInLine) {
     EXPECT_CALL(handler_, OnInstruction("STORE", 7)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 7)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "2", 7)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -115,11 +121,13 @@ TEST_F(BasicParserTest, SpacesInLine) {
 
 TEST_F(BasicParserTest, NoColon) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::LITERAL, "1", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::REGISTER, "2", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Expected colon at end of declaration of function fish", 4)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -135,9 +143,11 @@ TEST_F(BasicParserTest, NoColon) {
 
 TEST_F(BasicParserTest, BadLiteral) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Invalid literal #a", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -148,9 +158,11 @@ TEST_F(BasicParserTest, BadLiteral) {
 
 TEST_F(BasicParserTest, EmptyLiteral) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Empty literal #", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -161,9 +173,11 @@ TEST_F(BasicParserTest, EmptyLiteral) {
 
 TEST_F(BasicParserTest, TooBigLiteral) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Invalid literal #12147483647", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -176,9 +190,11 @@ TEST_F(BasicParserTest, TooBigLiteral) {
 
 TEST_F(BasicParserTest, BadReference) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Invalid reference @tuna", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -189,9 +205,11 @@ TEST_F(BasicParserTest, BadReference) {
 
 TEST_F(BasicParserTest, EmptyReference) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Empty reference @", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -202,9 +220,11 @@ TEST_F(BasicParserTest, EmptyReference) {
 
 TEST_F(BasicParserTest, TooBigReference) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Invalid reference @12147483647", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -217,10 +237,12 @@ TEST_F(BasicParserTest, TooBigReference) {
 
 TEST_F(BasicParserTest, EmptyRegister) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "5", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Empty register %r", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -231,10 +253,12 @@ TEST_F(BasicParserTest, EmptyRegister) {
 
 TEST_F(BasicParserTest, PartialRegister) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("LOAD", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnArg(Parser::Handler::REFERENCE, "5", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Invalid syntax % (did you mean '%r')", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"
@@ -247,9 +271,11 @@ TEST_F(BasicParserTest, PartialRegister) {
 
 TEST_F(BasicParserTest, EmptySymbol) {
     Sequence s;
+    EXPECT_CALL(handler_, OnStart()).InSequence(s);
     EXPECT_CALL(handler_, OnFunction("tuna", 1)).InSequence(s);
     EXPECT_CALL(handler_, OnInstruction("BRANCH", 2)).InSequence(s);
     EXPECT_CALL(handler_, OnError("Empty symbol $", 2)).InSequence(s);
+    EXPECT_CALL(handler_, OnEnd()).InSequence(s);
 
     const std::string text =
         "tuna:\n"

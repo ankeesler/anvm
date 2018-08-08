@@ -22,6 +22,9 @@ static std::map<std::string, Word> instruction_map = {
     { "DIVIDE", IDIVIDE, },
 };
 
+void SymbolTablePopulator::OnStart() {
+}
+
 void SymbolTablePopulator::OnError(const std::string& s, int line_num) {
     LOG("ERROR: line %d: %s", line_num, s.c_str());
 }
@@ -110,6 +113,9 @@ void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int
 
     ConvertStringToWord(name, &w);
     words->push_back(w);
+}
+
+void SymbolTablePopulator::OnEnd() {
 }
 
 bool SymbolTablePopulator::GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w) {
