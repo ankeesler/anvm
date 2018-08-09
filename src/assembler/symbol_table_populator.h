@@ -11,9 +11,9 @@
 class SymbolTablePopulator : public Parser::Handler {
     public:
         SymbolTablePopulator(Log *log, SymbolTable *st)
-            : log_(log), st_(st), currentFunction_(nullptr) { }
+            : log_(log), st_(st) { }
 
-        const std::vector<Error>& Errors() const { return errors_; }
+        const std::vector<Error>& Errors() const { return state_.errors; }
 
         void OnStart();
         void OnError(const std::string& s, int line_num);
@@ -23,18 +23,25 @@ class SymbolTablePopulator : public Parser::Handler {
         void OnEnd();
 
     private:
+        struct State {
+            std::vector<Error> errors;
+            int line_num;
+
+            Symbol *function;
+
+            Word instruction;
+            int expected_args;
+            int actual_args;
+        };
+
+        void ResetState();
         bool GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
         bool GetStoreInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
         bool GetBranchInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
 
         Log *log_;
         SymbolTable *st_;
-        Symbol *currentFunction_;
-        Word current_instruction_;
-        int current_instruction_line_;
-        int current_instruction_args_;
-        int current_args_count_;
-        std::vector<Error> errors_;
+        State state_;
 };
 
 #endif // ANVM_SRC_ASSEMBLER_SYMBOL_TABLE_POPULATOR_H_
