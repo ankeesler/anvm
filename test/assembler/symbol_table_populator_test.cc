@@ -20,6 +20,8 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
+
     stp.OnFunction("tuna", 0);
     stp.OnInstruction("LOAD", 0);
     stp.OnArg(Parser::Handler::LITERAL, "1", 0);
@@ -45,6 +47,8 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     stp.OnInstruction("DIVIDE", 0);
     stp.OnInstruction("SUBTRACT", 0);
 
+    stp.OnEnd();
+
     ASSERT_THAT(stp.Errors(), IsEmpty());
 
     const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
@@ -65,6 +69,7 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnFunction("tuna", 0);
     stp.OnInstruction("LOAD", 0);
     stp.OnArg(Parser::Handler::LITERAL, "1", 0);
@@ -72,6 +77,7 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
     stp.OnInstruction("STORE", 0);
     stp.OnArg(Parser::Handler::REGISTER, "pc", 0);
     stp.OnArg(Parser::Handler::REFERENCE, "64", 0);
+    stp.OnEnd();
 
     ASSERT_THAT(stp.Errors(), IsEmpty());
 
@@ -82,6 +88,28 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 }
 
+TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 9);
+    stp.OnInstruction("LOAD", 6);
+    stp.OnArg(Parser::Handler::LITERAL, "0", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 6);
+    stp.OnEnd();
+
+    ASSERT_THAT(stp.Errors(), IsEmpty());
+
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
+    EXPECT_THAT(tunaFunctions, SizeIs(1));
+    EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    Word tunaWords[] = { ILOAD, 0, 2, };
+    EXPECT_THAT(tunaFunctions[0]->words,
+            ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+}
+
 // Section - negative tests
 
 TEST(SymbolTablePopulatorTest, InvalidInstruction) {
@@ -89,11 +117,13 @@ TEST(SymbolTablePopulatorTest, InvalidInstruction) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnFunction("tuna", 0);
     stp.OnInstruction("LOAD", 0);
     stp.OnArg(Parser::Handler::LITERAL, "1", 0);
     stp.OnArg(Parser::Handler::REGISTER, "0", 0);
     stp.OnInstruction("INVALID INSTRUCTION", 5);
+    stp.OnEnd();
 
     EXPECT_THAT(stp.Errors(), ElementsAre(Error("Invalid instruction 'INVALID INSTRUCTION' found on line 5")));
 }
@@ -103,6 +133,7 @@ TEST(SymbolTablePopulatorTest, InvalidRegister) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnFunction("tuna", 0);
     stp.OnInstruction("LOAD", 0);
     stp.OnArg(Parser::Handler::LITERAL, "1", 0);
@@ -113,6 +144,7 @@ TEST(SymbolTablePopulatorTest, InvalidRegister) {
     stp.OnInstruction("LOAD", 7);
     stp.OnArg(Parser::Handler::LITERAL, "1", 7);
     stp.OnArg(Parser::Handler::REGISTER, "-1", 7);
+    stp.OnEnd();
 
     Error e1("Invalid register 'invalid register' found on line 6");
     Error e2("Invalid register '-1' found on line 7");
@@ -124,9 +156,12 @@ TEST(SymbolTablePopulatorTest, InstructionBeforeFunction) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnInstruction("LOAD", 7);
+    stp.OnEnd();
 
-    EXPECT_THAT(stp.Errors(), ElementsAre(Error("Received instruction 'LOAD' before function started on line 7")));
+    EXPECT_THAT(stp.Errors(),
+            ElementsAre(Error("Received instruction 'LOAD' before function started on line 7")));
 }
 
 TEST(SymbolTablePopulatorTest, ArgBeforeFunction) {
@@ -134,9 +169,12 @@ TEST(SymbolTablePopulatorTest, ArgBeforeFunction) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnArg(Parser::Handler::LITERAL, "1", 8);
+    stp.OnEnd();
 
-    EXPECT_THAT(stp.Errors(), ElementsAre(Error("Received arg '1' before function started on line 8")));
+    EXPECT_THAT(stp.Errors(),
+            ElementsAre(Error("Received arg '1' before function started on line 8")));
 }
 
 TEST(SymbolTablePopulatorTest, ArgBeforeInstruction) {
@@ -144,31 +182,113 @@ TEST(SymbolTablePopulatorTest, ArgBeforeInstruction) {
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
+    stp.OnStart();
     stp.OnFunction("tuna", 9);
     stp.OnArg(Parser::Handler::LITERAL, "2", 10);
+    stp.OnEnd();
 
-    EXPECT_THAT(stp.Errors(), ElementsAre(Error("Received arg '2' before instruction on line 10")));
+    EXPECT_THAT(stp.Errors(),
+            ElementsAre(Error("Received arg '2' before instruction on line 10")));
 }
 
-TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
+TEST(SymbolTablePopulatorTest, PartialInstruction) {
     Log *log = new StdoutLog();
     SymbolTable st(log);
     SymbolTablePopulator stp(log, &st);
 
-    stp.OnFunction("tuna", 9);
+    stp.OnStart();
+    stp.OnFunction("tuna", 1);
+    stp.OnInstruction("LOAD", 2);
+    stp.OnArg(Parser::Handler::LITERAL, "2", 2);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 2);
+    stp.OnInstruction("BRANCH", 3);
+    stp.OnInstruction("STORE", 4);
+    stp.OnArg(Parser::Handler::REGISTER, "0", 4);
+    stp.OnArg(Parser::Handler::REFERENCE, "64", 4);
+
+    EXPECT_THAT(stp.Errors(),
+            ElementsAre(Error("Partial statement on line 3: expected 1 args but got 0")));
+}
+
+TEST(SymbolTablePopulatorTest, PartialLastFunctionInstruction) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+
+    stp.OnFunction("tuna", 1);
+    stp.OnInstruction("LOAD", 2);
+    stp.OnArg(Parser::Handler::LITERAL, "2", 2);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 2);
+    stp.OnInstruction("BRANCH", 3);
+    stp.OnArg(Parser::Handler::LITERAL, "64", 6);
+    stp.OnInstruction("STORE", 4);
+    stp.OnArg(Parser::Handler::REGISTER, "0", 4);
+
+    stp.OnFunction("fish", 5);
+    stp.OnInstruction("LOAD", 6);
+    stp.OnArg(Parser::Handler::LITERAL, "2", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 6);
+    stp.OnInstruction("BRANCH", 7);
+    stp.OnArg(Parser::Handler::LITERAL, "64", 7);
+
+    stp.OnEnd();
+
+    EXPECT_THAT(stp.Errors(), SizeIs(1));
+    EXPECT_THAT(stp.Errors()[0].S(), Eq("Partial statement on line 4: expected 2 args but got 1"));
+}
+
+TEST(SymbolTablePopulatorTest, PartialLastOverallInstruction) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 3);
     stp.OnInstruction("LOAD", 6);
     stp.OnArg(Parser::Handler::LITERAL, "0", 6);
     stp.OnArg(Parser::Handler::REGISTER, "2", 6);
+    stp.OnInstruction("STORE", 9);
+    stp.OnArg(Parser::Handler::LITERAL, "0", 9);
+    stp.OnEnd();
 
-    ASSERT_THAT(stp.Errors(), IsEmpty());
+    ASSERT_THAT(stp.Errors(), SizeIs(1));
+    EXPECT_THAT(stp.Errors()[0].S(),
+            Eq("Partial statement on last line: expected 2 args but got 1"));
+}
 
-    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
-    EXPECT_THAT(tunaFunctions, SizeIs(1));
-    EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
-    Word tunaWords[] = { ILOAD, 0, 2, };
-    EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+TEST(SymbolTablePopulatorTest, InvalidArg) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 3);
+    stp.OnInstruction("BRANCH", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "0", 6);
+
+    ASSERT_THAT(stp.Errors(), SizeIs(1));
+    EXPECT_THAT(stp.Errors()[0].S(),
+            Eq("Could not match BRANCH instruction with type 2"));
+}
+
+TEST(SymbolTablePopulatorTest, TooManyArgs) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 3);
+    stp.OnInstruction("LOAD", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "0", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "1", 6);
+    stp.OnArg(Parser::Handler::REGISTER, "2", 6);
+
+    ASSERT_THAT(stp.Errors(), SizeIs(1));
+    EXPECT_THAT(stp.Errors()[0].S(),
+            Eq("Too many args in statement on line 6: expected 2 args but got 3"));
 }
 
 // We test all instructions that are in cpu.h
 // On arg that doesn't make sense for instruction, we error (not enough args)
-// Finishes on an instruction that is half done

@@ -59,3 +59,9 @@ TEST(ErrorTest, Basic) {
     const std::string same = "5 is less than 35";
     EXPECT_EQ(nums, Error(same));
 }
+
+TEST(ErrorTest, NotEquals) {
+    Error error("here is an error");
+    Error differentError("here is a different error");
+    // FIXME: EXPECT_THAT(error, Ne(differentError));
+}
