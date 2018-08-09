@@ -12,17 +12,21 @@
 static bool ConvertStringToWord(const std::string& name, Word *word);
 static bool IsValidRegister(const std::string& name);
 
-static std::map<std::string, Word> instruction_map = {
-    { "LOAD", ILOAD, },
-    { "STORE", ISTORE, },
-    { "BRANCH", IBRANCH, },
-    { "ADD", IADD, },
-    { "SUBTRACT", ISUBTRACT, },
-    { "MULTIPLY", IMULTIPLY, },
-    { "DIVIDE", IDIVIDE, },
+static std::map<std::string, std::pair<Word, int>> instruction_map = {
+    { "LOAD", std::pair<Word, int>(ILOAD, 2) },
+    { "STORE", std::pair<Word, int>(ISTORE, 2) },
+    { "BRANCH", std::pair<Word, int>(IBRANCH, 1) },
+    { "ADD", std::pair<Word, int>(IADD, 0) },
+    { "SUBTRACT", std::pair<Word, int>(ISUBTRACT, 0) },
+    { "MULTIPLY", std::pair<Word, int>(IMULTIPLY, 0) },
+    { "DIVIDE", std::pair<Word, int>(IDIVIDE, 0) },
 };
 
 void SymbolTablePopulator::OnStart() {
+    currentFunction_ = nullptr;
+    current_instruction_ = IEXIT;
+    current_instruction_args_ = 0;
+    current_args_count_ = 0;
 }
 
 void SymbolTablePopulator::OnError(const std::string& s, int line_num) {
@@ -54,8 +58,11 @@ void SymbolTablePopulator::OnInstruction(const std::string& name, int line_num) 
         return;
     }
 
-    Word w = instruction_map[name];
-    currentFunction_->words.push_back(w);
+    std::pair<Word, int>& instruction_info = instruction_map[name];
+    current_instruction_ = instruction_info.first;
+    current_instruction_args_ = instruction_info.second;
+    current_args_count_ = 0;
+    currentFunction_->words.push_back(current_instruction_);
 }
 
 void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int line_num) {
@@ -85,34 +92,39 @@ void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int
     std::vector<Word>* words = &currentFunction_->words;
     int lastWordIndex = words->size() - 1;
     Word w;
-    switch (words->at(lastWordIndex)) {
-        case ILOAD:
-            if (!GetLoadInstruction(type, line_num, &w)) {
-                assert(0);
-            }
-            words->at(lastWordIndex) = w;
-            break;
+    if (current_args_count_ == 0) {
+        switch (words->at(lastWordIndex)) {
+            case ILOAD:
+                if (!GetLoadInstruction(type, line_num, &w)) {
+                    assert(0);
+                }
+                words->at(lastWordIndex) = w;
+                break;
 
-        case ISTORE:
-            if (!GetStoreInstruction(type, line_num, &w)) {
-                Error e;
-                e << "Could not match STORE instruction with type " << type;
-                errors_.push_back(e);
-                return;
-            }
-            words->at(lastWordIndex) = w;
-            break;
+            case ISTORE:
+                if (!GetStoreInstruction(type, line_num, &w)) {
+                    Error e;
+                    e << "Could not match STORE instruction with type " << type;
+                    errors_.push_back(e);
+                    return;
+                }
+                words->at(lastWordIndex) = w;
+                break;
 
-        case IBRANCH:
-            if (!GetBranchInstruction(type, line_num, &w)) {
-                assert(0);
-            }
-            words->at(lastWordIndex) = w;
-            break;
+            case IBRANCH:
+                if (!GetBranchInstruction(type, line_num, &w)) {
+                    assert(0);
+                }
+                words->at(lastWordIndex) = w;
+                break;
+        }
     }
 
     ConvertStringToWord(name, &w);
     words->push_back(w);
+    if (++current_args_count_ == current_instruction_args_) {
+        current_instruction_ = IEXIT;
+    }
 }
 
 void SymbolTablePopulator::OnEnd() {

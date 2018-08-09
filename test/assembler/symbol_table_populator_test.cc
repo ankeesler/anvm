@@ -171,3 +171,4 @@ TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
 
 // We test all instructions that are in cpu.h
 // On arg that doesn't make sense for instruction, we error (not enough args)
+// Finishes on an instruction that is half done

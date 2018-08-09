@@ -23,13 +23,23 @@ class SymbolTablePopulator : public Parser::Handler {
         void OnEnd();
 
     private:
+        enum State {
+            NONE,
+            IN_FUNCTION,
+            IN_STATEMENT,
+        };
+
         bool GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
         bool GetStoreInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
         bool GetBranchInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w);
 
         Log *log_;
         SymbolTable *st_;
+        State state_;
         Symbol *currentFunction_;
+        Word current_instruction_;
+        int current_instruction_args_;
+        int current_args_count_;
         std::vector<Error> errors_;
 };
 
