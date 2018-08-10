@@ -1,6 +1,9 @@
 cc_test(
     name = "core_test",
-    srcs = ["core_test.cc"],
+    srcs = [
+        "cpu_test.cc",
+        "program_test.cc",
+    ],
     copts = [
         "-Iexternal/gtest/googletest/include",
         "-Iexternal/gtest/googlemock/include",

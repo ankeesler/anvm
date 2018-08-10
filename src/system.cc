@@ -9,7 +9,7 @@ Word System::Run(const Program& p) {
     const std::vector<Word>& words = p.Words();
 
     // Start from a fresh CPU.
-    cpu_->WritePC(0);
+    cpu_->WritePC(p.EntryAddress());
     cpu_->WriteSP(0);
     cpu_->ResetSR();
 

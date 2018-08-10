@@ -392,17 +392,16 @@ TEST_F(SingleCPUTest, StackPointer) {
     EXPECT_EQ(5, r);
 }
 
-TEST(ProgramTest, AddWords) {
-    Program p;
+TEST_F(SingleCPUTest, EntryAddress) {
+    Program p(
+            ILOAD, 5, 0,
+            ILOAD, 3, 1,
+            IADD,
+            IEXIT
+            );
+    p.SetEntryAddress(3);
 
-    const std::vector<Word> words = {1, 2, 3, 4, 5};
-    p.AddWords(3, words);
-
-    const std::vector<Word> more = {-1, 0, 1};
-    p.AddWords(0, more);
-
-    p.AddWord(4, 10);
-    p.AddWord(9, 20);
-
-    EXPECT_THAT(p.Words(), ElementsAre(-1, 0, 1, 1, 10, 3, 4, 5, 0, 20));
+    EXPECT_EQ(system_->Run(p), 0);
+    Word r = cpu_->ReadGR(0);
+    EXPECT_EQ(3, r);
 }
