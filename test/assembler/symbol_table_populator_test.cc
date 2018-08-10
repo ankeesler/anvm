@@ -54,12 +54,16 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
+    EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
     Word tunaWords[] = { ILOAD, 1, 0, IBRANCHX, 20, IMULTIPLY, ILOADR, 2, 2, ILOADM, 64, 3, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 
     const std::vector<Symbol*>& fishFunctions = st.Symbols("fish");
     EXPECT_THAT(fishFunctions, SizeIs(1));
     EXPECT_THAT(fishFunctions[0]->name, Eq("fish"));
+    EXPECT_THAT(fishFunctions[0]->resolved, Eq(true));
+    EXPECT_THAT(fishFunctions[0]->address, Eq(12));
     Word fishWords[] = { ISTORE, 100, 64, IADD, ISTORER, 1, 64, IDIVIDE, ISUBTRACT, };
     EXPECT_THAT(fishFunctions[0]->words, ElementsAreArray(fishWords, sizeof(fishWords)/sizeof(fishWords[0])));
 }
@@ -84,6 +88,8 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
     const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
+    EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
     Word tunaWords[] = { ILOAD, 1, -2, ISTORER, -3, 64, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 }
@@ -105,9 +111,42 @@ TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
     const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
     EXPECT_THAT(tunaFunctions, SizeIs(1));
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
+    EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
     Word tunaWords[] = { ILOAD, 0, 2, };
     EXPECT_THAT(tunaFunctions[0]->words,
             ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+}
+
+
+TEST(SymbolTablePopulatorTest, BranchToSymbol) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 1);
+    stp.OnInstruction("LOAD", 2);
+    stp.OnArg(Parser::Handler::LITERAL, "1", 2);
+    stp.OnArg(Parser::Handler::REGISTER, "sp", 2);
+    stp.OnInstruction("BRANCH", 3);
+    stp.OnArg(Parser::Handler::SYMBOL, "tuna", 3);
+    stp.OnEnd();
+
+    ASSERT_THAT(stp.Errors(), IsEmpty());
+
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
+    EXPECT_THAT(tunaFunctions, SizeIs(2));
+
+    EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    EXPECT_TRUE(tunaFunctions[0]->resolved);
+    EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
+    Word tunaWords[] = { ILOAD, 1, -2, IBRANCHX, 0, };
+    EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+
+    EXPECT_THAT(tunaFunctions[1]->name, Eq("tuna"));
+    EXPECT_FALSE(tunaFunctions[1]->resolved);
+    EXPECT_THAT(tunaFunctions[1]->address, Eq(4));
 }
 
 // Section - negative tests

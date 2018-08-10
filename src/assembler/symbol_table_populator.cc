@@ -33,7 +33,10 @@ void SymbolTablePopulator::OnError(const std::string& s, int line_num) {
 void SymbolTablePopulator::OnFunction(const std::string& name, int line_num) {
     LOG("Function %s found on line %d", name.c_str(), line_num);
 
-    Symbol s(name, false, 0, Symbol::FUNCTION);
+    Word address = (state_.function != nullptr
+            ? state_.function->words.size()
+            : 0);
+    Symbol s(name, true, address, Symbol::FUNCTION);
     s.name = name;
     state_.function = st_->AddSymbol(s);
 }
@@ -138,7 +141,12 @@ void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int
         }
     }
 
-    ConvertStringToWord(name, &w);
+    if (type == Parser::Handler::SYMBOL) {
+        w = 0; // linker fills in later
+        st_->AddSymbol(Symbol(name, false, words->size(), Symbol::FUNCTION));
+    } else {
+        ConvertStringToWord(name, &w);
+    }
     words->push_back(w);
     if (++state_.actual_args == state_.expected_args) {
         state_.instruction = IEXIT;
@@ -202,6 +210,7 @@ bool SymbolTablePopulator::GetStoreInstruction(enum Parser::Handler::ArgType typ
 bool SymbolTablePopulator::GetBranchInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w) {
     switch (type) {
         case Parser::Handler::LITERAL:
+        case Parser::Handler::SYMBOL:
             *w = IBRANCHX;
             break;
 
