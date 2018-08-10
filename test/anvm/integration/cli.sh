@@ -60,14 +60,17 @@ if [[ $? -ne 0 ]]; then
 fi
 anvm="bazel-bin/src/anvm/anvm"
 
+# BASIC FAILURE TESTS
+#expect_failure ./$anvm test/assembler/integration/fixtures/bad.asm
+#expect_failure ./$anvm --debug --output foo.asm
+expect_failure ./$anvm
+
+# RUN SUCCESS TESTS
 expect_success ./$anvm run test/anvm/integration/fixtures/basic.out
 expect_no_file a.cpu
+expect_success ./$anvm run test/anvm/integration/fixtures/basic.out -o cpu.out
+#expect_file cpu.out
+#expect_success ./$anvm read-mem -i cpu.out
 
-#expect_success ./$anvm test/assembler/integration/fixtures/basic.asm --output custom-file.out
-#expect_file custom-file.out
-#
-#expect_failure ./$anvm test/assembler/integration/fixtures/bad.asm
-expect_failure ./$anvm
+# RUN FAILURE TESTS
 expect_failure ./$anvm run
-#expect_failure ./$anvm --debug --output foo.asm
-expect_failure ./$anvm run read-mem
