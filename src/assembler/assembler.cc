@@ -1,8 +1,8 @@
 #include "assembler.h"
 
-#include <assert.h>
 #include <istream>
 #include <ostream>
+#include <sstream>
 #include <vector>
 
 #include "parser.h"
@@ -20,8 +20,11 @@ Error Assembler::Run(Log *log, std::istream& is, std::ostream& os) {
     parser.Parse(is, &stp);
     const std::vector<Error>& errors = stp.Errors();
     if (errors.size() > 0) {
-        assert(errors.size() == 1);
-        return errors[0];
+        std::stringstream ss("ERROR: ");
+        for (const Error& error : errors) {
+            ss << error.S();
+        }
+        return Error(ss.str());
     }
 
     Linker linker(log);
