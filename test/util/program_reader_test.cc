@@ -60,7 +60,7 @@ TEST(ProgramReaderTest, Underflow) {
     std::istringstream is(programString);
     const Error error = r.Read(is, &program);
     ASSERT_TRUE(error);
-    EXPECT_EQ(error.S(), "ERROR: program underflow at word 4; got 2 bytes but wanted 4");
+    EXPECT_EQ(error.S(), "Program underflow at word 4; got 2 bytes but wanted 4");
 }
 
 TEST(ProgramReaderTest, AlmostEmpty) {
@@ -77,5 +77,5 @@ TEST(ProgramReaderTest, AlmostEmpty) {
 
     const Error error = r.Read(is, &program);
     ASSERT_TRUE(error);
-    EXPECT_EQ(error.S(), "ERROR: program underflow at word 0; got 1 bytes but wanted 4");
+    EXPECT_EQ(error.S(), "Program underflow at word 0; got 1 bytes but wanted 4");
 }

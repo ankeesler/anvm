@@ -43,6 +43,10 @@ Error Linker::Link(const SymbolTable& st, Program *program) {
         LOG("Resolving symbol %s at address 0x%08X", name.c_str(), address);
     }
 
+    if (resolvedSymbols.count("main") > 0) {
+        program->SetEntryAddress(resolvedSymbols["main"]->address);
+    }
+
     LOG("Returning from linker");
     return Error::NONE;
 }

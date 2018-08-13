@@ -49,6 +49,6 @@ Word MakeWord(unsigned char *bytes) {
 }
 
 static void MakeUnderflowError(Error *error, int index, int read_count) {
-    (*error) << "ERROR: program underflow at word " << index;
+    (*error) << "Program underflow at word " << index;
     (*error) << "; got " << read_count << " bytes but wanted 4";
 }
