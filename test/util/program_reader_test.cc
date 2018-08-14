@@ -1,5 +1,6 @@
 #include <istream>
 #include <sstream>
+#include <fstream>
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -60,7 +61,7 @@ TEST(ProgramReaderTest, Underflow) {
     std::istringstream is(programString);
     const Error error = r.Read(is, &program);
     ASSERT_TRUE(error);
-    EXPECT_EQ(error.S(), "Program underflow at word 4; got 2 bytes but wanted 4");
+    EXPECT_EQ(error.S(), "Could not read program text: Failed to read byte 2 of word 4");
 }
 
 TEST(ProgramReaderTest, AlmostEmpty) {
@@ -77,5 +78,46 @@ TEST(ProgramReaderTest, AlmostEmpty) {
 
     const Error error = r.Read(is, &program);
     ASSERT_TRUE(error);
-    EXPECT_EQ(error.S(), "Program underflow at word 0; got 1 bytes but wanted 4");
+    EXPECT_EQ(error.S(), "Could not read program entry address: Failed to read byte 1 of word 0");
+}
+
+TEST(ProgramReaderTest, File) {
+    const unsigned char programBytes[] = {
+        0x00, 0x00, 0x00, 0x05,
+        0x00, 0x00, 0x00, IBRANCHX,
+        0x00, 0x00, 0x00, 0x08,
+        0x00, 0x00, 0x00, IADD,
+        0x00, 0x00, 0x00, ILOADM,
+        0x00, 0x00, 0x00, 0x30,
+        0x00, 0x00, 0x00, 0x01,
+        0x00, 0x00, 0x00, IBRANCHR,
+        0x00, 0x00, 0x00, 0x01,
+        0xFF, 0xFF, 0xFF, 0xFF,
+    };
+    const std::string programString((char *)programBytes, sizeof(programBytes));
+    std::ofstream ofs("program.out");
+    EXPECT_TRUE(ofs.write(programString.c_str(), programString.size()));
+    ofs.close();
+
+    StdoutLog log;
+    ProgramReader r(&log);
+
+    Program program;
+    std::ifstream ifs("program.out");
+
+    const Error error = r.Read(ifs, &program);
+    ASSERT_FALSE(error);
+
+    EXPECT_EQ(program.Words().size(), 9);
+
+    EXPECT_THAT(program.EntryAddress(), testing::Eq(5));
+
+    const Word words[] = {
+            IBRANCHX, 8,
+            IADD,
+            ILOADM, 48, 1,
+            IBRANCHR, 1,
+            IEXIT,
+    };
+    EXPECT_THAT(program.Words(), testing::ElementsAreArray(words, 9));
 }

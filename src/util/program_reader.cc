@@ -15,10 +15,15 @@ static void MakeUnderflowError(Error *error, int index, int read_count);
 const Error ProgramReader::Read(std::istream& is, Program *program) {
     LOG("Reading program from stream");
 
+    // TODO: wtf?
+    is.get();
+    is.unget();
+
     unsigned char bytes[4];
     int read_count = is.readsome((char *)bytes, sizeof(bytes));
     if (read_count != sizeof(bytes)) {
         Error e;
+        e << "Could not read program entry address: ";
         MakeUnderflowError(&e, 0, read_count);
         LOG(e.S().c_str());
         return e;
@@ -32,6 +37,7 @@ const Error ProgramReader::Read(std::istream& is, Program *program) {
             break;
         } else if (read_count != sizeof(bytes)) {
             Error e;
+            e << "Could not read program text: ";
             MakeUnderflowError(&e, program->Words().size()+1, read_count);
             LOG(e.S().c_str());
             return e;
@@ -49,6 +55,5 @@ Word MakeWord(unsigned char *bytes) {
 }
 
 static void MakeUnderflowError(Error *error, int index, int read_count) {
-    (*error) << "Program underflow at word " << index;
-    (*error) << "; got " << read_count << " bytes but wanted 4";
+    (*error) << "Failed to read byte " << read_count << " of word " << index;
 }
