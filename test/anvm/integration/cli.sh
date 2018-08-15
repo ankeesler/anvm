@@ -66,9 +66,9 @@ anvm="bazel-bin/src/anvm/anvm"
 expect_failure ./$anvm
 
 # RUN SUCCESS TESTS
-expect_success ./$anvm run test/anvm/integration/fixtures/basic.out
+expect_success ./$anvm -d run test/anvm/integration/fixtures/basic.out
 expect_no_file a.cpu
-expect_success ./$anvm run test/anvm/integration/fixtures/basic.out -o cpu.out
+expect_success ./$anvm -d run test/anvm/integration/fixtures/basic.out -o cpu.out
 #expect_file cpu.out
 #expect_success ./$anvm read-mem -i cpu.out
 

@@ -20,6 +20,13 @@ cc_library(
         ":error_lib",
         "//src:core_lib",
     ],
+    copts = [
+        "-Wall",
+        "-Werror",
+        "-g",
+        "-ggdb",
+        "-O0",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -31,6 +38,13 @@ cc_library(
         ":log_lib",
         ":error_lib",
         "//src:core_lib",
+    ],
+    copts = [
+        "-Wall",
+        "-Werror",
+        "-g",
+        "-ggdb",
+        "-O0",
     ],
     visibility = ["//visibility:public"],
 )

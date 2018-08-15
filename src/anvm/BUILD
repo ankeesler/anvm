@@ -6,5 +6,12 @@ cc_binary(
         "//src/util:log_lib",
         "//src/util:program_reader_lib",
     ],
+    copts = [
+        "-Wall",
+        "-Werror",
+        "-g",
+        "-ggdb",
+        "-O0",
+    ],
     visibility = ["//visibility:public"],
 )

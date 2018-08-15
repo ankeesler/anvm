@@ -10,5 +10,12 @@ cc_library(
         "program.h",
         "system.h",
     ],
+    copts = [
+        "-Wall",
+        "-Werror",
+        "-g",
+        "-ggdb",
+        "-O0",
+    ],
     visibility = ["//visibility:public"],
 )
