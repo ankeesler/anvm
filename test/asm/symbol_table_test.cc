@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "src/assembler/symbol_table.h"
+#include "src/asm/symbol_table.h"
 #include "src/util/log.h"
 
 using testing::ElementsAre;

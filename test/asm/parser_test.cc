@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "src/assembler/parser.h"
+#include "src/asm/parser.h"
 #include "src/util/log.h"
 
 using testing::Sequence;

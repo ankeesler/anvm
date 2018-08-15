@@ -1,4 +1,4 @@
-#include "src/assembler/symbol_table.h"
+#include "symbol_table.h"
 
 #include <vector>
 #include <string>

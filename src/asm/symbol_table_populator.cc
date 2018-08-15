@@ -1,4 +1,4 @@
-#include "src/assembler/symbol_table_populator.h"
+#include "symbol_table_populator.h"
 
 #include <assert.h>
 #include <string>

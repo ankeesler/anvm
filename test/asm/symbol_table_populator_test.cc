@@ -2,8 +2,8 @@
 #include "gmock/gmock.h"
 
 #include "src/cpu.h"
-#include "src/assembler/symbol_table.h"
-#include "src/assembler/symbol_table_populator.h"
+#include "src/asm/symbol_table.h"
+#include "src/asm/symbol_table_populator.h"
 #include "src/util/log.h"
 #include "src/util/error.h"
 

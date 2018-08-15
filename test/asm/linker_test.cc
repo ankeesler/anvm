@@ -4,8 +4,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "src/assembler/linker.h"
-#include "src/assembler/symbol_table.h"
+#include "src/asm/linker.h"
+#include "src/asm/symbol_table.h"
 #include "src/cpu.h"
 #include "src/program.h"
 #include "src/util/log.h"
