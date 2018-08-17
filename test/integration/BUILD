@@ -9,9 +9,11 @@ cc_test(
         "@gtest//:gtest",
         "@gtest//:gmock",
         "@gtest//:gmock_main",
+        "//src:core_lib",
         "//src/asm:assembler_lib",
         "//src/util:log_lib",
         "//src/util:error_lib",
+        "//src/util:program_reader_lib",
     ],
     data = [
         "//test/integration/fixtures:fixtures",
