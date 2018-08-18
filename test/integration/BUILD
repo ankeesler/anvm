@@ -1,6 +1,6 @@
 cc_test(
-    name = "assembler_test",
-    srcs = ["assembler_test.cc"],
+    name = "integration_test",
+    srcs = ["integration_test.cc"],
     copts = [
         "-Iexternal/gtest/googletest/include",
         "-Iexternal/gtest/googlemock/include",

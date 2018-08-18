@@ -7,6 +7,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "src/cpu.h"
+#include "src/system.h"
+#include "src/program.h"
 #include "src/asm/assembler.h"
 #include "src/util/log.h"
 #include "src/util/error.h"
@@ -17,8 +19,22 @@ class AssemblerTest : public testing::Test {
         Assembler asm_;
 };
 
-static void RunProgram(const Program& p, std::promise<Word> *promise) {
-    promise->set_value(5);
+static Word RunProgram(const Program& p) {
+    std::promise<Word> promise;
+    std::thread thread([&]() {
+            CPU cpu(4, 128);
+            System s(&cpu);
+            Word status = s.Run(p);
+            promise.set_value(status);
+    });
+    thread.detach();
+    std::future<Word> fut = promise.get_future();
+    std::future_status fut_status = fut.wait_for(std::chrono::seconds(3));
+    if (fut_status == std::future_status::timeout) {
+        return IEXIT;
+    } else {
+        return fut.get();
+    }
 }
 
 TEST_F(AssemblerTest, Bad) {
@@ -41,21 +57,11 @@ TEST_F(AssemblerTest, Good) {
     Error error1 = asm_.Run(new StdoutLog(), ifs, ss);
     ASSERT_FALSE(error1);
 
-    Program p(
-            ILOAD, 1, 0,
-            ILOAD, 2, 1,
-            IADD,
-            IEXIT
-           );
-    std::promise<Word> promise;
-    std::thread thread(RunProgram, std::ref(p), &promise);
-    std::future<Word> fut = promise.get_future();
-    std::future_status fut_status = fut.wait_for(std::chrono::seconds(3));
-    if (fut_status == std::future_status::timeout) {
-        std::cout << "timeout!" << std::endl;
-        ASSERT_TRUE(false);
-    } else {
-        std::cout << "it finished!" << std::endl;
-        ASSERT_TRUE(true);
-    }
+    Program p;
+    ProgramReader pr(new StdoutLog());
+    Error error2 = pr.Read(ss, &p);
+    ASSERT_FALSE(error2);
+
+    Word status = RunProgram(p);
+    ASSERT_EQ(status, 0);
 }
