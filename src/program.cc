@@ -18,6 +18,22 @@ Program::Program(Word w, ...) : entry_address_(0) {
     va_end(list);
 }
 
+bool Program::operator==(const Program& p) const {
+    if (words_.size() != p.words_.size()) {
+        return false;
+    } else if (!std::equal(words_.begin(), words_.end(), p.words_.begin())) {
+        return false;
+    } else if (entry_address_ != p.entry_address_) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Program::operator!=(const Program& p) const {
+    return !(*this == p);
+}
+
 void Program::AddWord(Word address, Word w) {
     int is_size = words_.size();
     if (is_size < address + 1) {

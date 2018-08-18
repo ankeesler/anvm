@@ -1,5 +1,7 @@
 This is an assembly language used to communicate anvm machine code.
 
+## Language
+
 Here is a rough layout of the language.
 - A Function is an ordered list of Statement's.
 - A Statement is a machine Instruction plus some Arg's.
@@ -38,3 +40,10 @@ Here is a BNFish description of the language.
 
 When a binary file is written, the parsed functions are written in order of appearance in the .asm file.
 The binary file is in big-endian.
+
+## ASM Conventions
+
+- The PC register is referred to as `%rpc` and the SP register is referred to as `%rsp`.
+- When referencing the PC register in an instruction such as `LOAD %rpc %r0`, then PC register value is 
+  what it was set to at the beginning of that statement, i.e., it contains the address of the `LOAD`
+  instruction `Word`.

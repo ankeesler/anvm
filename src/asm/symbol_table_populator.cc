@@ -20,6 +20,7 @@ static std::map<std::string, std::pair<Word, int>> instruction_map = {
     { "SUBTRACT", std::pair<Word, int>(ISUBTRACT, 0) },
     { "MULTIPLY", std::pair<Word, int>(IMULTIPLY, 0) },
     { "DIVIDE", std::pair<Word, int>(IDIVIDE, 0) },
+    { "IEXIT", std::pair<Word, int>(IEXIT, 0) },
 };
 
 void SymbolTablePopulator::OnStart() {

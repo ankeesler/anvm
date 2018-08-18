@@ -1,0 +1,4 @@
+These are potential next steps for the project.
+
+- Rewrite the VM as a Go TCP service?
+  - This could be a lot easier to maintain and debug!

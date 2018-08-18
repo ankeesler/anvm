@@ -14,16 +14,21 @@
 #include "src/util/error.h"
 #include "src/util/program_reader.h"
 
+using ::testing::ElementsAre;
+using ::testing::ElementsAreArray;
+using ::testing::ContainerEq;
+using ::testing::Eq;
+
 class AssemblerTest : public testing::Test {
     protected:
         Assembler asm_;
+        ProgramReader pr_;
 };
 
-static Word RunProgram(const Program& p) {
+static Word RunProgram(const Program& p, CPU *cpu) {
     std::promise<Word> promise;
     std::thread thread([&]() {
-            CPU cpu(4, 128);
-            System s(&cpu);
+            System s(cpu);
             Word status = s.Run(p);
             promise.set_value(status);
     });
@@ -61,7 +66,35 @@ TEST_F(AssemblerTest, Good) {
     ProgramReader pr(new StdoutLog());
     Error error2 = pr.Read(ss, &p);
     ASSERT_FALSE(error2);
+    
+    const Word words[] = {
+            // op1
+            ILOAD, 1, 1,
+            IADD,
+            ILOADR, 0, 1,
+            IMULTIPLY,
+            ISTORE, 2, 64,
+            ILOADM, 64, 1,
+            IDIVIDE,
+            ILOAD, 3, 0,
+            ISUBTRACT,
+            
+            ILOADR, PC, 0,
+            ILOAD, 15, 1,
+            IADD,
+            ILOADR, 0, 1,
+            ILOAD, 5, 0,
+            IBRANCHX, 0,
+            ISTORER, 0, 64,
+            IEXIT
+    };
+    ASSERT_THAT(p.Words(), ElementsAreArray(words, sizeof(words)/sizeof(words[0])));
+    ASSERT_THAT(p.EntryAddress(), Eq(19));
 
-    Word status = RunProgram(p);
+    CPU cpu(4, 128);
+    Word status = RunProgram(p, &cpu);
     ASSERT_EQ(status, 0);
+
+    Word value = cpu.ReadMem(64);
+    ASSERT_EQ(value, 15);
 }

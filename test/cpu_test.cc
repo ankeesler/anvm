@@ -392,6 +392,20 @@ TEST_F(SingleCPUTest, StackPointer) {
     EXPECT_EQ(5, r);
 }
 
+TEST_F(SingleCPUTest, ProgramCounter) {
+    Program p(
+            ILOAD, 5, 0,
+            ILOADR, PC, 1,
+            ILOAD, 8, 0,
+            IADD,
+            IEXIT
+            );
+
+    EXPECT_EQ(system_->Run(p), 0);
+    Word r = cpu_->ReadGR(0);
+    EXPECT_EQ(11, r);
+}
+
 TEST_F(SingleCPUTest, EntryAddress) {
     Program p(
             ILOAD, 5, 0,

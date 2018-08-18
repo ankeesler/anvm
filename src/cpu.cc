@@ -85,6 +85,7 @@ void CPU::Load() {
 }
 
 void CPU::LoadR() {
+    Word pcStart = pc_;
     Word regA = ReadMem(++pc_);
     Word regB = ReadMem(++pc_);
     if (regA >= GRCount() || regB >= GRCount()) {
@@ -93,10 +94,16 @@ void CPU::LoadR() {
     }
     if (regA == SP && regB == SP) {
         // no op
+    } else if (regA == PC && regB == PC) {
+        // no op
     } else if (regA == SP) {
         grs_[regB] = ReadSP();
+    } else if (regA == PC) {
+        grs_[regB] = pcStart;
     } else if (regB == SP) {
         WriteSP(grs_[regA]);
+    } else if (regB == PC) {
+        WritePC(grs_[regB]);
     } else {
         grs_[regB] = grs_[regA];
     }

@@ -30,6 +30,7 @@ const Error ProgramReader::Read(std::istream& is, Program *program) {
     }
     Word entry_addr = MakeWord(bytes);
     program->SetEntryAddress(entry_addr);
+    LOG("Read entry address: 0x%08X", entry_addr);
 
     do {
         read_count = is.readsome((char *)bytes, sizeof(bytes));
@@ -44,6 +45,7 @@ const Error ProgramReader::Read(std::istream& is, Program *program) {
         }
         Word w = MakeWord(bytes);
         program->AddWord(w);
+        LOG("Read program word: 0x%08X", w);
     } while (is);
 
     LOG("Done reading program from stream");

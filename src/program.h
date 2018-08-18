@@ -11,6 +11,9 @@ class Program {
 
         Program(Word w, ...);
 
+        bool operator==(const Program& p) const;
+        bool operator!=(const Program& p) const;
+
         Word EntryAddress() const { return entry_address_; }
         void SetEntryAddress(Word address) { entry_address_ = address; }
 

@@ -46,6 +46,7 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     stp.OnArg(Parser::Handler::REFERENCE, "64", 0);
     stp.OnInstruction("DIVIDE", 0);
     stp.OnInstruction("SUBTRACT", 0);
+    stp.OnInstruction("IEXIT", 134);
 
     stp.OnEnd();
 
@@ -64,7 +65,7 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     EXPECT_THAT(fishFunctions[0]->name, Eq("fish"));
     EXPECT_THAT(fishFunctions[0]->resolved, Eq(true));
     EXPECT_THAT(fishFunctions[0]->address, Eq(12));
-    Word fishWords[] = { ISTORE, 100, 64, IADD, ISTORER, 1, 64, IDIVIDE, ISUBTRACT, };
+    Word fishWords[] = { ISTORE, 100, 64, IADD, ISTORER, 1, 64, IDIVIDE, ISUBTRACT, IEXIT, };
     EXPECT_THAT(fishFunctions[0]->words, ElementsAreArray(fishWords, sizeof(fishWords)/sizeof(fishWords[0])));
 }
 

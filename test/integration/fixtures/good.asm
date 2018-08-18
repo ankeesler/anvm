@@ -1,4 +1,4 @@
-op1:                 ;; takes one parameter, a "seed"
+op1:                 ;; takes two parameters, a "seed", and a return address
 	LOAD #1 %r1
 	ADD              ;; "seed" += 1
 	LOAD %r0, %r1
@@ -8,9 +8,15 @@ op1:                 ;; takes one parameter, a "seed"
 	DIVIDE           ;; "seed" /= 2
 	LOAD #3 %r0
 	SUBTRACT         ;; "seed" -= 3
+	;;BRANCH %r1
                      ;; return "seed"
 
 main:
+	LOAD %rpc %r0
+	LOAD #15 %r1
+	ADD
+	LOAD %r0 %r1
 	LOAD #5 %r0
 	BRANCH $op1      ;; op1(5)
 	STORE %r0 @64
+	IEXIT
