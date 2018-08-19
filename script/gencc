@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 
 if len(sys.argv) != 3:
     print "usage: %s <ClassName> <out_directory>" % (sys.argv[0])
@@ -45,4 +46,4 @@ c_file_contents = """#include "%s"
 """
 
 with open(c_file_name, "w") as f:
-    f.write(c_file_contents % (h_file_name))
+    f.write(c_file_contents % (os.path.basename(h_file_name)))

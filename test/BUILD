@@ -3,6 +3,7 @@ cc_test(
     srcs = [
         "cpu_test.cc",
         "program_test.cc",
+        "process_test.cc",
     ],
     copts = [
         "-Iexternal/gtest/googletest/include",
