@@ -8,14 +8,15 @@ Object model:
 - A CPU has a program counter, a stack pointer, a status register, and some general purpose registers.
 - A System is a thing that runs Program's on a CPU.
 
-To run the tests you need to download [bazel](https://github.com/bazelbuild/bazel/releases). Then, run:
+To do anything in this repo, first run the [`bootstrap.sh`](script/bootstrap.sh) script to download dependencies. Then, use the Makefile to run the tests.
 ```bash
-./script/test.sh
+./script/bootstrap.sh
+make test
 ```
 
-To build the assembler, you need to download [bazel](https://github.com/bazelbuild/bazel/releases). Then, run:
+To build the assembler, run this command (after the above step).
 ```bash
-bazel build //src/assembler:anasm
+bazel build //src/asm:anasm
 ```
 
 This project uses at least C++11.
