@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -ex
+set -e
+
+# This script also needs: curl, g++, sha256sum on Linux, gdb
 
 scriptname="bazel-0.16.0-installer-linux-x86_64.sh"
 script="https://github.com/bazelbuild/bazel/releases/download/0.16.0/$scriptname"
@@ -13,8 +15,9 @@ if [[ "$(echo $shaoutput | awk '{print $2}')" != "$scriptname" ]]; then
 fi
 
 curl -L $script -o $scriptname
-if [[ "$(echo $shaoutput | awk '{print $1}')" != "$(shasum -a 256 $scriptname | awk '{print $1}')" ]]; then
+if [[ "$(echo $shaoutput | awk '{print $1}')" != "$(sha256sum $scriptname | awk '{print $1}')" ]]; then
   echo "sha does not match sha of script"
   exit 1
 fi
 
+$scriptname --help
