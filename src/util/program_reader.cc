@@ -15,16 +15,11 @@ static void MakeUnderflowError(Error *error, int index, int read_count);
 const Error ProgramReader::Read(std::istream& is, Program *program) {
     LOG("Reading program from stream");
 
-    // TODO: wtf?
-    is.get();
-    is.unget();
-
     unsigned char bytes[4];
-    int read_count = is.readsome((char *)bytes, sizeof(bytes));
-    if (read_count != sizeof(bytes)) {
+    if (!is.read((char *)bytes, sizeof(bytes))) {
         Error e;
         e << "Could not read program entry address: ";
-        MakeUnderflowError(&e, 0, read_count);
+        MakeUnderflowError(&e, 0, is.gcount());
         LOG(e.S().c_str());
         return e;
     }
@@ -32,21 +27,18 @@ const Error ProgramReader::Read(std::istream& is, Program *program) {
     program->SetEntryAddress(entry_addr);
     LOG("Read entry address: 0x%08X", entry_addr);
 
-    do {
-        read_count = is.readsome((char *)bytes, sizeof(bytes));
-        if (read_count == 0) {
-            break;
-        } else if (read_count != sizeof(bytes)) {
-            Error e;
-            e << "Could not read program text: ";
-            MakeUnderflowError(&e, program->Words().size()+1, read_count);
-            LOG(e.S().c_str());
-            return e;
-        }
+    while (is.read((char *)bytes, sizeof(bytes))) {
         Word w = MakeWord(bytes);
         program->AddWord(w);
         LOG("Read program word (%d): 0x%08X", program->Words().size(), w);
-    } while (is);
+    }
+    if (is.gcount() != 0) {
+        Error e;
+        e << "Could not read program text: ";
+        MakeUnderflowError(&e, program->Words().size()+1, is.gcount());
+        LOG(e.S().c_str());
+        return e;
+    }
 
     LOG("Done reading program from stream");
     return Error::NONE;
