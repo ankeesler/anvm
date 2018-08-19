@@ -1,3 +1,4 @@
 These are technical needs.
 
 - A disassembler for debugging what binary code actually got generated.
+- A debugger! It could go in src/dbg.

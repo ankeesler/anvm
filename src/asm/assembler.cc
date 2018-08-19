@@ -20,9 +20,10 @@ Error Assembler::Run(Log *log, std::istream& is, std::ostream& os) {
     parser.Parse(is, &stp);
     const std::vector<Error>& errors = stp.Errors();
     if (errors.size() > 0) {
-        std::stringstream ss("ERROR: ");
+        std::stringstream ss("ERROR(s): ");
+        ss << "ERROR(s) during parsing:";
         for (const Error& error : errors) {
-            ss << error.S();
+            ss << std::endl << "- " << error.S();
         }
         return Error(ss.str());
     }

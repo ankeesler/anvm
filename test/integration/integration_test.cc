@@ -44,10 +44,9 @@ TEST_F(AssemblerTest, Bad) {
     ASSERT_TRUE(ifs);
 
     std::ostringstream oss;
-
     Error error = asm_.Run(new StdoutLog(), ifs, oss);
     ASSERT_TRUE(error);
-    // TODO: EXPECT_THAT(error.S(), testing::Eq(""));
+    ASSERT_THAT(error.S(), testing::Eq("ERROR(s) during parsing:\n- Invalid register 'p' found on line 3\n- Partial statement on line 4: expected 2 args but got 1"));
 }
 
 TEST_F(AssemblerTest, Good) {
