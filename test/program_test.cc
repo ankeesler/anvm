@@ -43,12 +43,13 @@ TEST(ProgramTest, Equals) {
 }
 
 TEST(ProgramTest, NotEquals) {
-    Program p0(1, 2, 3);
+    Program p0(1, 2, 3, IEXIT);
     p0.SetEntryAddress(5);
-    Program p1(1, 2, 3);
-    Program p2(1, 2, 4);
-    Program p3(1, 2, 4, 6);
+    Program p1(1, 2, 3, IEXIT);
+    Program p2(1, 2, 4, IEXIT);
+    Program p3(1, 2, 4, 6, IEXIT);
     EXPECT_THAT(p0, Ne(p1));
+    EXPECT_THAT(p0, Ne(p2));
     EXPECT_THAT(p0, Ne(p2));
     EXPECT_THAT(p0, Ne(p3));
     EXPECT_THAT(p1, Ne(p2));

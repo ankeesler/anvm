@@ -7,6 +7,11 @@ cc_test(
     copts = [
         "-Iexternal/gtest/googletest/include",
         "-Iexternal/gtest/googlemock/include",
+        "-Wall",
+        "-Werror",
+        "-g",
+        "-ggdb",
+        "-O0",
     ],
     deps = [
         "@gtest//:gtest",

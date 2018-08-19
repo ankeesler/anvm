@@ -22,7 +22,6 @@ using ::testing::Eq;
 class AssemblerTest : public testing::Test {
     protected:
         Assembler asm_;
-        ProgramReader pr_;
 };
 
 static Word RunProgram(const Program& p, CPU *cpu) {
