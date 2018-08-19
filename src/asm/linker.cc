@@ -75,7 +75,7 @@ static Error ResolveSymbols(const SymbolTable& st,
         if (resolved->count(name) == 0) {
             e << "Unresolved symbol " << name << " at addresses ";
             for (Word address : unresolvedAddresses) {
-                char hex[9]; // 0x000000 + '\0'
+                char hex[11]; // 0x00000000 + '\0'
                 memset(hex, 0, sizeof(hex));
                 sprintf(hex, "0x%08X", address);
                 e << hex << " ";
