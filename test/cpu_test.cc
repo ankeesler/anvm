@@ -375,12 +375,15 @@ TEST_F(SingleCPUTest, Store) {
     Program p(
             ISTORE, 5, 32,
             ILOADM, 32, 0,
+            ISTORER, 0, 16,
             IEXIT
             );
 
-    EXPECT_EQ(system_->Run(p), 0);
+    ASSERT_EQ(system_->Run(p), 0);
     Word r = cpu_->ReadGR(0);
     EXPECT_EQ(5, r);
+    Word m = cpu_->ReadMem(16);
+    EXPECT_EQ(5, m);
 }
 
 TEST_F(SingleCPUTest, StackPointer) {

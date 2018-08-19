@@ -1,4 +1,5 @@
 op1:                 ;; takes two parameters, a "seed", and a return address
+	LOAD %r1 %r2
 	LOAD #1 %r1
 	ADD              ;; "seed" += 1
 	LOAD %r0, %r1
@@ -6,9 +7,9 @@ op1:                 ;; takes two parameters, a "seed", and a return address
 	STORE #2 @64
 	LOAD @64 %r1
 	DIVIDE           ;; "seed" /= 2
-	LOAD #3 %r0
+	LOAD #3 %r1
 	SUBTRACT         ;; "seed" -= 3
-	;;BRANCH %r1
+	BRANCH %r2
                      ;; return "seed"
 
 main:

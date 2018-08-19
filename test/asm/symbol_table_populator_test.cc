@@ -159,6 +159,32 @@ TEST(SymbolTablePopulatorTest, BranchToSymbol) {
     EXPECT_THAT(tunaFunctions[2]->address, Eq(9));
 }
 
+TEST(SymbolTablePopulatorTest, BranchToRegister) {
+    Log *log = new StdoutLog();
+    SymbolTable st(log);
+    SymbolTablePopulator stp(log, &st);
+
+    stp.OnStart();
+    stp.OnFunction("tuna", 1);
+    stp.OnInstruction("LOAD", 2);
+    stp.OnArg(Parser::Handler::LITERAL, "0", 2);
+    stp.OnArg(Parser::Handler::REGISTER, "1", 2);
+    stp.OnInstruction("BRANCH", 3);
+    stp.OnArg(Parser::Handler::REGISTER, "1", 3);
+    stp.OnEnd();
+
+    ASSERT_THAT(stp.Errors(), IsEmpty());
+
+    const std::vector<Symbol*>& tunaFunctions = st.Symbols("tuna");
+    EXPECT_THAT(tunaFunctions, SizeIs(1));
+
+    EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
+    EXPECT_TRUE(tunaFunctions[0]->resolved);
+    EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
+    Word tunaWords[] = { ILOAD, 0, 1, IBRANCHR, 1, };
+    EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
+}
+
 // Section - negative tests
 
 TEST(SymbolTablePopulatorTest, InvalidInstruction) {
@@ -315,11 +341,11 @@ TEST(SymbolTablePopulatorTest, InvalidArg) {
     stp.OnStart();
     stp.OnFunction("tuna", 3);
     stp.OnInstruction("BRANCH", 6);
-    stp.OnArg(Parser::Handler::REGISTER, "0", 6);
+    stp.OnArg(Parser::Handler::REFERENCE, "0", 6);
 
     ASSERT_THAT(stp.Errors(), SizeIs(1));
     EXPECT_THAT(stp.Errors()[0].S(),
-            Eq("Could not match BRANCH instruction with type 2"));
+            Eq("Could not match BRANCH instruction with type 1"));
 }
 
 TEST(SymbolTablePopulatorTest, TooManyArgs) {

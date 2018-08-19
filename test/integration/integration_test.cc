@@ -25,16 +25,14 @@ class AssemblerTest : public testing::Test {
 };
 
 static Word RunProgram(const Program& p, CPU *cpu) {
+    System s(cpu);
     std::promise<Word> promise;
-    std::thread thread([&]() {
-            System s(cpu);
-            Word status = s.Run(p);
-            promise.set_value(status);
-    });
+    std::thread thread([&]() { promise.set_value(s.Run(p)); });
     thread.detach();
     std::future<Word> fut = promise.get_future();
     std::future_status fut_status = fut.wait_for(std::chrono::seconds(3));
     if (fut_status == std::future_status::timeout) {
+        s.Halt();
         return IEXIT;
     } else {
         return fut.get();
@@ -68,6 +66,7 @@ TEST_F(AssemblerTest, Good) {
     
     const Word words[] = {
             // op1
+            ILOADR, 1, 2,
             ILOAD, 1, 1,
             IADD,
             ILOADR, 0, 1,
@@ -75,9 +74,11 @@ TEST_F(AssemblerTest, Good) {
             ISTORE, 2, 64,
             ILOADM, 64, 1,
             IDIVIDE,
-            ILOAD, 3, 0,
+            ILOAD, 3, 1,
             ISUBTRACT,
+            IBRANCHR, 2,
             
+            // main
             ILOADR, PC, 0,
             ILOAD, 15, 1,
             IADD,
@@ -88,9 +89,9 @@ TEST_F(AssemblerTest, Good) {
             IEXIT
     };
     ASSERT_THAT(p.Words(), ElementsAreArray(words, sizeof(words)/sizeof(words[0])));
-    ASSERT_THAT(p.EntryAddress(), Eq(19));
+    ASSERT_THAT(p.EntryAddress(), Eq(24));
 
-    CPU cpu(4, 128);
+    CPU cpu(4, 68);
     Word status = RunProgram(p, &cpu);
     ASSERT_EQ(status, 0);
 

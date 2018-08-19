@@ -28,7 +28,7 @@ typedef int32_t Word;
 
 // Store into memory.
 #define ISTORE ((Word)0x10) /* literal, addr; mem[addr] = literal */
-#define ISTORER ((Word)0x11) /* addr, reg; mem[addr] = gr[reg] */
+#define ISTORER ((Word)0x11) /* reg, addr; mem[addr] = gr[reg] */
 
 // Branch to instruction.
 #define IBRANCH ((Word)0x20) /* pc = gr[0] */

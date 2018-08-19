@@ -225,6 +225,10 @@ bool SymbolTablePopulator::GetBranchInstruction(enum Parser::Handler::ArgType ty
             *w = IBRANCHX;
             break;
 
+        case Parser::Handler::REGISTER:
+            *w = IBRANCHR;
+            break;
+
         default:
             return false;
     }

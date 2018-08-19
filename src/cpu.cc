@@ -130,8 +130,8 @@ void CPU::Store() {
 }
 
 void CPU::StoreR() {
-    Word addr = ReadMem(++pc_);
     Word reg = ReadMem(++pc_);
+    Word addr = ReadMem(++pc_);
     if (reg >= GRCount()) {
         sr_ |= STATUS_BADREGISTER;
         return;
