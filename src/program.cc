@@ -9,11 +9,11 @@ Program::Program(Word w, ...) : entry_address_(0) {
     va_list list;
     va_start(list, w);
 
-    while (w != IEXIT) {
+    while (w != CPU::IEXIT) {
         words_.push_back(w);
         w = va_arg(list, Word);
     }
-    words_.push_back(IEXIT);
+    words_.push_back(CPU::IEXIT);
 
     va_end(list);
 }

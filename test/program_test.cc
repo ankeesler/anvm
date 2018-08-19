@@ -34,20 +34,20 @@ TEST(ProgramTest, Equals) {
 
     p.AddWord(4, 10);
     p.AddWord(9, 20);
-    p.AddWord(10, IEXIT);
+    p.AddWord(10, CPU::IEXIT);
 
-    Program other(1, 0, 1, 1, 10, 3, 4, 5, 0, 20, IEXIT);
+    Program other(1, 0, 1, 1, 10, 3, 4, 5, 0, 20, CPU::IEXIT);
     other.SetEntryAddress(5);
 
     ASSERT_EQ(p, other);
 }
 
 TEST(ProgramTest, NotEquals) {
-    Program p0(1, 2, 3, IEXIT);
+    Program p0(1, 2, 3, CPU::IEXIT);
     p0.SetEntryAddress(5);
-    Program p1(1, 2, 3, IEXIT);
-    Program p2(1, 2, 4, IEXIT);
-    Program p3(1, 2, 4, 6, IEXIT);
+    Program p1(1, 2, 3, CPU::IEXIT);
+    Program p2(1, 2, 4, CPU::IEXIT);
+    Program p3(1, 2, 4, 6, CPU::IEXIT);
     EXPECT_THAT(p0, Ne(p1));
     EXPECT_THAT(p0, Ne(p2));
     EXPECT_THAT(p0, Ne(p2));

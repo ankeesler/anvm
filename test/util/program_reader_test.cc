@@ -11,13 +11,13 @@
 TEST(ProgramReaderTest, Basic) {
     const unsigned char programBytes[] = {
         0x00, 0x00, 0x00, 0x05,
-        0x00, 0x00, 0x00, IBRANCHX,
+        0x00, 0x00, 0x00, CPU::IBRANCHX,
         0x00, 0x00, 0x00, 0x08,
-        0x00, 0x00, 0x00, IADD,
-        0x00, 0x00, 0x00, ILOADM,
+        0x00, 0x00, 0x00, CPU::IADD,
+        0x00, 0x00, 0x00, CPU::CPU::ILOADM,
         0x00, 0x00, 0x00, 0x30,
         0x00, 0x00, 0x00, 0x01,
-        0x00, 0x00, 0x00, IBRANCHR,
+        0x00, 0x00, 0x00, CPU::IBRANCHR,
         0x00, 0x00, 0x00, 0x01,
         0xFF, 0xFF, 0xFF, 0xFF,
     };
@@ -35,11 +35,11 @@ TEST(ProgramReaderTest, Basic) {
     EXPECT_THAT(program.EntryAddress(), testing::Eq(5));
 
     const Word words[] = {
-            IBRANCHX, 8,
-            IADD,
-            ILOADM, 48, 1,
-            IBRANCHR, 1,
-            IEXIT,
+            CPU::IBRANCHX, 8,
+            CPU::IADD,
+            CPU::CPU::ILOADM, 48, 1,
+            CPU::IBRANCHR, 1,
+            CPU::IEXIT,
     };
     EXPECT_THAT(program.Words(), testing::ElementsAreArray(words, 9));
 }
@@ -47,9 +47,9 @@ TEST(ProgramReaderTest, Basic) {
 TEST(ProgramReaderTest, Underflow) {
     const unsigned char programBytes[] = {
         0x00, 0x00, 0x00, 0x04,
-        0x00, 0x00, 0x00, IBRANCHX,
+        0x00, 0x00, 0x00, CPU::IBRANCHX,
         0x00, 0x00, 0x00, 0x08,
-        0x00, 0x00, 0x00, IADD,
+        0x00, 0x00, 0x00, CPU::IADD,
         0x00, 0x00,
     };
     const std::string programString((char *)programBytes, sizeof(programBytes));
@@ -84,13 +84,13 @@ TEST(ProgramReaderTest, AlmostEmpty) {
 TEST(ProgramReaderTest, File) {
     const unsigned char programBytes[] = {
         0x00, 0x00, 0x00, 0x05,
-        0x00, 0x00, 0x00, IBRANCHX,
+        0x00, 0x00, 0x00, CPU::IBRANCHX,
         0x00, 0x00, 0x00, 0x08,
-        0x00, 0x00, 0x00, IADD,
-        0x00, 0x00, 0x00, ILOADM,
+        0x00, 0x00, 0x00, CPU::IADD,
+        0x00, 0x00, 0x00, CPU::CPU::ILOADM,
         0x00, 0x00, 0x00, 0x30,
         0x00, 0x00, 0x00, 0x01,
-        0x00, 0x00, 0x00, IBRANCHR,
+        0x00, 0x00, 0x00, CPU::IBRANCHR,
         0x00, 0x00, 0x00, 0x01,
         0xFF, 0xFF, 0xFF, 0xFF,
     };
@@ -113,11 +113,11 @@ TEST(ProgramReaderTest, File) {
     EXPECT_THAT(program.EntryAddress(), testing::Eq(5));
 
     const Word words[] = {
-            IBRANCHX, 8,
-            IADD,
-            ILOADM, 48, 1,
-            IBRANCHR, 1,
-            IEXIT,
+            CPU::IBRANCHX, 8,
+            CPU::IADD,
+            CPU::CPU::ILOADM, 48, 1,
+            CPU::IBRANCHR, 1,
+            CPU::IEXIT,
     };
     EXPECT_THAT(program.Words(), testing::ElementsAreArray(words, 9));
 }

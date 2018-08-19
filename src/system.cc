@@ -16,7 +16,7 @@ Word System::Run(const Program& p) {
     // Load program into memory.
     cpu_->MassWriteMem(0, &words.front(), words.size());
     Word status = cpu_->ReadSR();
-    if (status & STATUS_FAILURE) {
+    if (status & CPU::FAILURE) {
         return status;
     }
 

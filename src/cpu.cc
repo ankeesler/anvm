@@ -26,35 +26,35 @@ void CPU::Run() {
         switch (ReadMem(pc_)) {
             case IEXIT: return;
 
-            case ILOAD: Load(); break;
-            case ILOADR: LoadR(); break;
-            case ILOADM: LoadM(); break;
+            case CPU::CPU::ILOAD: Load(); break;
+            case CPU::CPU::ILOADR: LoadR(); break;
+            case CPU::CPU::ILOADM: LoadM(); break;
 
-            case ISTORE: Store(); break;
-            case ISTORER: StoreR(); break;
+            case CPU::ISTORE: Store(); break;
+            case CPU::ISTORER: StoreR(); break;
 
-            case IBRANCH: Branch(); break;
-            case IBRANCHR: BranchR(); break;
-            case IBRANCHX: BranchX(); break;
-            case IBRANCHIF: BranchIf(); break;
+            case CPU::IBRANCH: Branch(); break;
+            case CPU::IBRANCHR: BranchR(); break;
+            case CPU::IBRANCHX: BranchX(); break;
+            case CPU::IBRANCHIF: BranchIf(); break;
 
-            case IADD: Add(); break;
-            case ISUBTRACT: Subtract(); break;
-            case IMULTIPLY: Multiply(); break;
-            case IDIVIDE: Divide(); break;
-            case IMOD: Mod(); break;
-            case IDEC: Decrement(); break;
-            case IINC: Increment(); break;
+            case CPU::IADD: Add(); break;
+            case CPU::ISUBTRACT: Subtract(); break;
+            case CPU::IMULTIPLY: Multiply(); break;
+            case CPU::IDIVIDE: Divide(); break;
+            case CPU::IMOD: Mod(); break;
+            case CPU::IDEC: Decrement(); break;
+            case CPU::IINC: Increment(); break;
 
-            case ICMPEQ: CmpEq(); break;
-            case ICMPLT: CmpLt(); break;
+            case CPU::ICMPEQ: CmpEq(); break;
+            case CPU::ICMPLT: CmpLt(); break;
 
             default:
-                sr_ |= STATUS_UNKNOWNI;
+                sr_ |= UNKNOWNI;
                 return;
         }
 
-        if (sr_ &= STATUS_FAILURE) {
+        if (sr_ &= FAILURE) {
             return;
         }
 
@@ -63,12 +63,12 @@ void CPU::Run() {
 }
 
 void CPU::Halt() {
-    sr_ |= STATUS_HALTED;
+    sr_ |= HALTED;
 }
 
 bool CPU::CheckBadAccess(Word address) {
     if (address >= MemSize()) {
-        sr_ |= STATUS_BADACCESS;
+        sr_ |= BADACCESS;
         return true;
     }
     return false;
@@ -78,7 +78,7 @@ void CPU::Load() {
     Word value = ReadMem(++pc_);
     Word reg = ReadMem(++pc_);
     if (reg >= GRCount()) {
-        sr_ |= STATUS_BADREGISTER;
+        sr_ |= BADREGISTER;
         return;
     }
     if (reg == SP) {
@@ -93,7 +93,7 @@ void CPU::LoadR() {
     Word regA = ReadMem(++pc_);
     Word regB = ReadMem(++pc_);
     if (regA >= GRCount() || regB >= GRCount()) {
-        sr_ |= STATUS_BADREGISTER;
+        sr_ |= BADREGISTER;
         return;
     }
     if (regA == SP && regB == SP) {
@@ -117,7 +117,7 @@ void CPU::LoadM() {
     Word addr = ReadMem(++pc_);
     Word reg = ReadMem(++pc_);
     if (reg >= GRCount()) {
-        sr_ |= STATUS_BADREGISTER;
+        sr_ |= BADREGISTER;
         return;
     }
     grs_[reg] = ReadMem(addr);
@@ -133,7 +133,7 @@ void CPU::StoreR() {
     Word reg = ReadMem(++pc_);
     Word addr = ReadMem(++pc_);
     if (reg >= GRCount()) {
-        sr_ |= STATUS_BADREGISTER;
+        sr_ |= BADREGISTER;
         return;
     }
     WriteMem(addr, grs_[reg]);
@@ -146,7 +146,7 @@ void CPU::Branch() {
 void CPU::BranchR() {
     Word reg = ReadMem(++pc_);
     if (reg >= GRCount()) {
-        sr_ |= STATUS_BADREGISTER;
+        sr_ |= BADREGISTER;
         return;
     }
     pc_ = grs_[reg] - 1; // account for auto pc bump
@@ -177,7 +177,7 @@ void CPU::Multiply() {
 
 void CPU::Divide() {
     if (grs_[1] == 0) {
-        sr_ |= STATUS_DIVZERO;
+        sr_ |= DIVZERO;
         return;
     }
     grs_[0] = grs_[0] / grs_[1];

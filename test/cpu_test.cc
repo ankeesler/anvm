@@ -27,10 +27,10 @@ class SingleCPUTest : public testing::Test {
 
 TEST_F(SingleCPUTest, Add) {
     Program p(
-            ILOAD, 1, 0,
-            ILOAD, 2, 1,
-            IADD,
-            IEXIT
+            CPU::CPU::ILOAD, 1, 0,
+            CPU::CPU::ILOAD, 2, 1,
+            CPU::IADD,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -40,10 +40,10 @@ TEST_F(SingleCPUTest, Add) {
 
 TEST_F(SingleCPUTest, Subtract) {
     Program p(
-            ILOAD, 1, 0,
-            ILOAD, 2, 1,
-            ISUBTRACT,
-            IEXIT
+            CPU::CPU::ILOAD, 1, 0,
+            CPU::CPU::ILOAD, 2, 1,
+            CPU::ISUBTRACT,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -53,10 +53,10 @@ TEST_F(SingleCPUTest, Subtract) {
 
 TEST_F(SingleCPUTest, Multiply) {
     Program p(
-            ILOAD, 3, 0,
-            ILOAD, 2, 1,
-            IMULTIPLY,
-            IEXIT
+            CPU::CPU::ILOAD, 3, 0,
+            CPU::CPU::ILOAD, 2, 1,
+            CPU::IMULTIPLY,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -66,10 +66,10 @@ TEST_F(SingleCPUTest, Multiply) {
 
 TEST_F(SingleCPUTest, Divide) {
     Program p(
-            ILOAD, -4, 0,
-            ILOAD, 2, 1,
-            IDIVIDE,
-            IEXIT
+            CPU::CPU::ILOAD, -4, 0,
+            CPU::CPU::ILOAD, 2, 1,
+            CPU::IDIVIDE,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -79,21 +79,21 @@ TEST_F(SingleCPUTest, Divide) {
 
 TEST_F(SingleCPUTest, DivideBy0) {
     Program p(
-            ILOAD, -4, 0,
-            ILOAD, 0, 1,
-            IDIVIDE,
-            IEXIT
+            CPU::CPU::ILOAD, -4, 0,
+            CPU::CPU::ILOAD, 0, 1,
+            CPU::IDIVIDE,
+            CPU::IEXIT
            );
 
-    EXPECT_EQ(system_->Run(p), STATUS_DIVZERO);
+    EXPECT_EQ(system_->Run(p), CPU::DIVZERO);
 }
 
 TEST_F(SingleCPUTest, Mod) {
     Program p(
-            ILOAD, 150, 0,
-            ILOAD, 147, 1,
-            IMOD,
-            IEXIT
+            CPU::CPU::ILOAD, 150, 0,
+            CPU::CPU::ILOAD, 147, 1,
+            CPU::IMOD,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -103,13 +103,13 @@ TEST_F(SingleCPUTest, Mod) {
 
 TEST_F(SingleCPUTest, Branch) {
     Program p(
-            ILOAD, 7, 0,
-            IBRANCH,
+            CPU::CPU::ILOAD, 7, 0,
+            CPU::IBRANCH,
             0, 0, 0, // whatever instructions
-            ILOAD, 2, 0,
-            ILOAD, 3, 1,
-            IADD, 
-            IEXIT
+            CPU::CPU::ILOAD, 2, 0,
+            CPU::CPU::ILOAD, 3, 1,
+            CPU::IADD, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -119,20 +119,20 @@ TEST_F(SingleCPUTest, Branch) {
 
 TEST_F(SingleCPUTest, BadAccess) {
     Program p(
-            ILOAD, cpu_->MemSize() + 1, 0,
-            IBRANCH,
-            IEXIT
+            CPU::CPU::ILOAD, cpu_->MemSize() + 1, 0,
+            CPU::IBRANCH,
+            CPU::IEXIT
            );
 
-    EXPECT_EQ(system_->Run(p), STATUS_BADACCESS);
+    EXPECT_EQ(system_->Run(p), CPU::BADACCESS);
 }
 
 TEST_F(SingleCPUTest, CmpEq) {
     Program p1(
-            ILOAD, 7, 0,
-            ILOAD, 6, 1,
-            ICMPEQ, 
-            IEXIT
+            CPU::CPU::ILOAD, 7, 0,
+            CPU::CPU::ILOAD, 6, 1,
+            CPU::ICMPEQ, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p1), 0);
@@ -140,10 +140,10 @@ TEST_F(SingleCPUTest, CmpEq) {
     EXPECT_EQ(0, r);
 
     Program p2(
-            ILOAD, 9, 0,
-            ILOAD, 9, 1,
-            ICMPEQ, 
-            IEXIT
+            CPU::CPU::ILOAD, 9, 0,
+            CPU::CPU::ILOAD, 9, 1,
+            CPU::ICMPEQ, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p2), 0);
@@ -153,10 +153,10 @@ TEST_F(SingleCPUTest, CmpEq) {
 
 TEST_F(SingleCPUTest, CmpLt) {
     Program p1(
-            ILOAD, 7, 0,
-            ILOAD, 6, 1,
-            ICMPLT, 
-            IEXIT
+            CPU::CPU::ILOAD, 7, 0,
+            CPU::CPU::ILOAD, 6, 1,
+            CPU::ICMPLT, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p1), 0);
@@ -164,10 +164,10 @@ TEST_F(SingleCPUTest, CmpLt) {
     EXPECT_EQ(0, r);
 
     Program p2(
-            ILOAD, 9, 0,
-            ILOAD, 9, 1,
-            ICMPLT, 
-            IEXIT
+            CPU::CPU::ILOAD, 9, 0,
+            CPU::CPU::ILOAD, 9, 1,
+            CPU::ICMPLT, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p2), 0);
@@ -175,10 +175,10 @@ TEST_F(SingleCPUTest, CmpLt) {
     EXPECT_EQ(0, r);
 
     Program p3(
-            ILOAD, 11, 0,
-            ILOAD, 12, 1,
-            ICMPLT, 
-            IEXIT
+            CPU::CPU::ILOAD, 11, 0,
+            CPU::CPU::ILOAD, 12, 1,
+            CPU::ICMPLT, 
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p3), 0);
@@ -188,14 +188,14 @@ TEST_F(SingleCPUTest, CmpLt) {
 
 TEST_F(SingleCPUTest, BranchIf) {
     Program p1(
-            ILOAD, 2, 0,
-            ILOAD, 14, 1,
-            IBRANCHIF,
-            ILOAD, 222, 1,
-            ILOAD, 17, 0,
-            IBRANCH,
-            ILOAD, 333, 1,
-            IEXIT
+            CPU::CPU::ILOAD, 2, 0,
+            CPU::CPU::ILOAD, 14, 1,
+            CPU::IBRANCHIF,
+            CPU::CPU::ILOAD, 222, 1,
+            CPU::CPU::ILOAD, 17, 0,
+            CPU::IBRANCH,
+            CPU::CPU::ILOAD, 333, 1,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p1), 0);
@@ -203,14 +203,14 @@ TEST_F(SingleCPUTest, BranchIf) {
     EXPECT_EQ(333, r);
 
     Program p2(
-            ILOAD, 0, 0,
-            ILOAD, 7, 1,
-            IBRANCHIF,
-            ILOAD, 222, 1,
-            ILOAD, 17, 0,
-            IBRANCH,
-            ILOAD, 333, 1,
-            IEXIT
+            CPU::CPU::ILOAD, 0, 0,
+            CPU::CPU::ILOAD, 7, 1,
+            CPU::IBRANCHIF,
+            CPU::CPU::ILOAD, 222, 1,
+            CPU::CPU::ILOAD, 17, 0,
+            CPU::IBRANCH,
+            CPU::CPU::ILOAD, 333, 1,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p2), 0);
@@ -220,9 +220,9 @@ TEST_F(SingleCPUTest, BranchIf) {
 
 TEST_F(SingleCPUTest, Decrement) {
     Program p(
-            ILOAD, 1000, 0,
-            IDEC,
-            IEXIT
+            CPU::CPU::ILOAD, 1000, 0,
+            CPU::IDEC,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -232,9 +232,9 @@ TEST_F(SingleCPUTest, Decrement) {
 
 TEST_F(SingleCPUTest, Increment) {
     Program p(
-            ILOAD, 6999, 0,
-            IINC,
-            IEXIT
+            CPU::CPU::ILOAD, 6999, 0,
+            CPU::IINC,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -244,25 +244,25 @@ TEST_F(SingleCPUTest, Increment) {
 
 TEST_F(SingleCPUTest, BadRegister) {
     Program p1(
-            ILOAD, 1, 100,
-            IEXIT
+            CPU::CPU::ILOAD, 1, 100,
+            CPU::IEXIT
             );
 
-    EXPECT_EQ(system_->Run(p1), STATUS_BADREGISTER);
+    EXPECT_EQ(system_->Run(p1), CPU::BADREGISTER);
 
     Program p2(
-            ILOADR, 1, 100, 
-            IEXIT
+            CPU::CPU::ILOADR, 1, 100, 
+            CPU::IEXIT
             );
 
-    EXPECT_EQ(system_->Run(p2), STATUS_BADREGISTER);
+    EXPECT_EQ(system_->Run(p2), CPU::BADREGISTER);
 
     Program p3(
-            ILOADR, 100, 1, 
-            IEXIT
+            CPU::CPU::ILOADR, 100, 1, 
+            CPU::IEXIT
             );
 
-    EXPECT_EQ(system_->Run(p3), STATUS_BADREGISTER);
+    EXPECT_EQ(system_->Run(p3), CPU::BADREGISTER);
 }
 
 TEST_F(SingleCPUTest, ForLoop) {
@@ -271,32 +271,32 @@ TEST_F(SingleCPUTest, ForLoop) {
     //     a *= 3;
     // }
     Program p(
-            ILOAD, 1, 2, // a = 1
-            ILOAD, 0, 3, // i = 0
-            ILOAD, 3, 1,
+            CPU::CPU::ILOAD, 1, 2, // a = 1
+            CPU::CPU::ILOAD, 0, 3, // i = 0
+            CPU::CPU::ILOAD, 3, 1,
 
-            ILOAD, 30, 0, // goto loop comparison
-            IBRANCH,
+            CPU::CPU::ILOAD, 30, 0, // goto loop comparison
+            CPU::IBRANCH,
 
             // multiplication:
-            ILOADR, 2, 0, // gr0 = a
-            ILOAD, 3, 1,  // gr1 = 3
-            IMULTIPLY,    // gr0 = gr0(a) * gr1(3) 
-            ILOADR, 0, 2, // a = gr0
+            CPU::CPU::ILOADR, 2, 0, // gr0 = a
+            CPU::CPU::ILOAD, 3, 1,  // gr1 = 3
+            CPU::IMULTIPLY,    // gr0 = gr0(a) * gr1(3) 
+            CPU::CPU::ILOADR, 0, 2, // a = gr0
 
             // increment i:
-            ILOADR, 3, 0, // gr0 = 1
-            IINC,         // gr0(i) ++
-            ILOADR, 0, 3, // i = gr0(i)
+            CPU::CPU::ILOADR, 3, 0, // gr0 = 1
+            CPU::IINC,         // gr0(i) ++
+            CPU::CPU::ILOADR, 0, 3, // i = gr0(i)
 
             // loop comparison:
-            ILOADR, 3, 0, // gr0 = i
-            ILOAD, 3, 1,  // gr1 = 3
-            ICMPLT,       // if i < 3,
-            ILOAD, 13, 1, // goto multiplication
-            IBRANCHIF,
+            CPU::CPU::ILOADR, 3, 0, // gr0 = i
+            CPU::CPU::ILOAD, 3, 1,  // gr1 = 3
+            CPU::ICMPLT,       // if i < 3,
+            CPU::CPU::ILOAD, 13, 1, // goto multiplication
+            CPU::IBRANCHIF,
 
-            IEXIT
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -311,19 +311,19 @@ TEST_F(SingleCPUTest, NotEnoughMemory) {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 48
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 64
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80
-            IEXIT
+            CPU::IEXIT
             );
 
-    EXPECT_EQ(system_->Run(p), STATUS_BADACCESS);
+    EXPECT_EQ(system_->Run(p), CPU::BADACCESS);
 }
 
 TEST_F(SingleCPUTest, BranchX) {
     Program p(
-            ILOAD, 1000, 0,
-            IBRANCHX, 6,
-            IINC,
-            IDEC,
-            IEXIT
+            CPU::CPU::ILOAD, 1000, 0,
+            CPU::IBRANCHX, 6,
+            CPU::IINC,
+            CPU::IDEC,
+            CPU::IEXIT
            );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -342,28 +342,28 @@ TEST_F(SingleCPUTest, FunctionCall) {
     //     return a * b;
     // }
     Program p(
-            IBRANCHX, 8,
+            CPU::IBRANCHX, 8,
 
             // add(r0, r1) -> r0:
-            IADD,
-            ILOADM, 48, 1,
-            IBRANCHR, 1,
+            CPU::IADD,
+            CPU::CPU::ILOADM, 48, 1,
+            CPU::IBRANCHR, 1,
 
-            ILOAD, 1, 0,
-            ILOAD, 2, 1,
-            ISTORE, 19, 48, // push return address
-            IBRANCHX, 2,    // call add
-            ILOADR, 0, 2,   // r2 = a
-            ILOAD, 3, 0,
-            ILOAD, 4, 1,
-            ISTORE, 33, 48, // push return address
-            IBRANCHX, 2,    // call add
-            ILOADR, 0, 3,   // r3 = b
-            ILOADR, 2, 0,   // r0 = a
-            ILOADR, 3, 1,   // r1 = b
-            IMULTIPLY,
+            CPU::CPU::ILOAD, 1, 0,
+            CPU::CPU::ILOAD, 2, 1,
+            CPU::ISTORE, 19, 48, // push return address
+            CPU::IBRANCHX, 2,    // call add
+            CPU::CPU::ILOADR, 0, 2,   // r2 = a
+            CPU::CPU::ILOAD, 3, 0,
+            CPU::CPU::ILOAD, 4, 1,
+            CPU::ISTORE, 33, 48, // push return address
+            CPU::IBRANCHX, 2,    // call add
+            CPU::CPU::ILOADR, 0, 3,   // r3 = b
+            CPU::CPU::ILOADR, 2, 0,   // r0 = a
+            CPU::CPU::ILOADR, 3, 1,   // r1 = b
+            CPU::IMULTIPLY,
 
-            IEXIT
+            CPU::IEXIT
             );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -373,10 +373,10 @@ TEST_F(SingleCPUTest, FunctionCall) {
 
 TEST_F(SingleCPUTest, Store) {
     Program p(
-            ISTORE, 5, 32,
-            ILOADM, 32, 0,
-            ISTORER, 0, 16,
-            IEXIT
+            CPU::ISTORE, 5, 32,
+            CPU::CPU::ILOADM, 32, 0,
+            CPU::ISTORER, 0, 16,
+            CPU::IEXIT
             );
 
     ASSERT_EQ(system_->Run(p), 0);
@@ -388,9 +388,9 @@ TEST_F(SingleCPUTest, Store) {
 
 TEST_F(SingleCPUTest, StackPointer) {
     Program p(
-            ILOAD, 5, SP,
-            ILOADR, SP, 0,
-            IEXIT
+            CPU::CPU::ILOAD, 5, CPU::SP,
+            CPU::CPU::ILOADR, CPU::SP, 0,
+            CPU::IEXIT
             );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -400,11 +400,11 @@ TEST_F(SingleCPUTest, StackPointer) {
 
 TEST_F(SingleCPUTest, ProgramCounter) {
     Program p(
-            ILOAD, 5, 0,
-            ILOADR, PC, 1,
-            ILOAD, 8, 0,
-            IADD,
-            IEXIT
+            CPU::CPU::ILOAD, 5, 0,
+            CPU::CPU::ILOADR, CPU::PC, 1,
+            CPU::CPU::ILOAD, 8, 0,
+            CPU::IADD,
+            CPU::IEXIT
             );
 
     EXPECT_EQ(system_->Run(p), 0);
@@ -414,10 +414,10 @@ TEST_F(SingleCPUTest, ProgramCounter) {
 
 TEST_F(SingleCPUTest, EntryAddress) {
     Program p(
-            ILOAD, 5, 0,
-            ILOAD, 3, 1,
-            IADD,
-            IEXIT
+            CPU::CPU::ILOAD, 5, 0,
+            CPU::CPU::ILOAD, 3, 1,
+            CPU::IADD,
+            CPU::IEXIT
             );
     p.SetEntryAddress(3);
 
@@ -429,8 +429,8 @@ TEST_F(SingleCPUTest, EntryAddress) {
 TEST_F(SingleCPUTest, Halt) {
     // infinite loop...
     Program p(
-            IBRANCHX, 0,
-            IEXIT
+            CPU::IBRANCHX, 0,
+            CPU::IEXIT
             );
 
     std::promise<Word> prom;
@@ -443,5 +443,5 @@ TEST_F(SingleCPUTest, Halt) {
     fut_status = fut.wait_for(std::chrono::seconds(1));
     EXPECT_EQ(fut_status, std::future_status::ready);
     Word status = fut.get();
-    EXPECT_EQ(status, STATUS_HALTED);
+    EXPECT_EQ(status, CPU::HALTED);
 }

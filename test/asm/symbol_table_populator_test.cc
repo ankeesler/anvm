@@ -57,7 +57,7 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
     EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
-    Word tunaWords[] = { ILOAD, 1, 0, IBRANCHX, 20, IMULTIPLY, ILOADR, 2, 2, ILOADM, 64, 3, };
+    Word tunaWords[] = { CPU::CPU::ILOAD, 1, 0, CPU::IBRANCHX, 20, CPU::IMULTIPLY, CPU::ILOADR, 2, 2, CPU::ILOADM, 64, 3, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 
     const std::vector<Symbol*>& fishFunctions = st.Symbols("fish");
@@ -65,7 +65,7 @@ TEST(SymbolTablePopulatorTest, HappyPath) {
     EXPECT_THAT(fishFunctions[0]->name, Eq("fish"));
     EXPECT_THAT(fishFunctions[0]->resolved, Eq(true));
     EXPECT_THAT(fishFunctions[0]->address, Eq(12));
-    Word fishWords[] = { ISTORE, 100, 64, IADD, ISTORER, 1, 64, IDIVIDE, ISUBTRACT, IEXIT, };
+    Word fishWords[] = { CPU::ISTORE, 100, 64, CPU::IADD, CPU::ISTORER, 1, 64, CPU::IDIVIDE, CPU::ISUBTRACT, CPU::IEXIT, };
     EXPECT_THAT(fishFunctions[0]->words, ElementsAreArray(fishWords, sizeof(fishWords)/sizeof(fishWords[0])));
 }
 
@@ -91,7 +91,7 @@ TEST(SymbolTablePopulatorTest, SpecialRegisters) {
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
     EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
-    Word tunaWords[] = { ILOAD, 1, -2, ISTORER, -3, 64, };
+    Word tunaWords[] = { CPU::CPU::ILOAD, 1, -2, CPU::ISTORER, -3, 64, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 }
 
@@ -114,7 +114,7 @@ TEST(SymbolTablePopulatorTest, FakeInstructionBug) {
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     EXPECT_THAT(tunaFunctions[0]->resolved, Eq(true));
     EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
-    Word tunaWords[] = { ILOAD, 0, 2, };
+    Word tunaWords[] = { CPU::CPU::ILOAD, 0, 2, };
     EXPECT_THAT(tunaFunctions[0]->words,
             ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 }
@@ -147,7 +147,7 @@ TEST(SymbolTablePopulatorTest, BranchToSymbol) {
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     EXPECT_TRUE(tunaFunctions[0]->resolved);
     EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
-    Word tunaWords[] = { ILOAD, 1, -2, IBRANCHX, 0, };
+    Word tunaWords[] = { CPU::CPU::ILOAD, 1, -2, CPU::IBRANCHX, 0, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 
     EXPECT_THAT(tunaFunctions[1]->name, Eq("tuna"));
@@ -181,7 +181,7 @@ TEST(SymbolTablePopulatorTest, BranchToRegister) {
     EXPECT_THAT(tunaFunctions[0]->name, Eq("tuna"));
     EXPECT_TRUE(tunaFunctions[0]->resolved);
     EXPECT_THAT(tunaFunctions[0]->address, Eq(0));
-    Word tunaWords[] = { ILOAD, 0, 1, IBRANCHR, 1, };
+    Word tunaWords[] = { CPU::CPU::ILOAD, 0, 1, CPU::IBRANCHR, 1, };
     EXPECT_THAT(tunaFunctions[0]->words, ElementsAreArray(tunaWords, sizeof(tunaWords)/sizeof(tunaWords[0])));
 }
 

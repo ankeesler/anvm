@@ -33,7 +33,7 @@ static Word RunProgram(const Program& p, CPU *cpu) {
     std::future_status fut_status = fut.wait_for(std::chrono::seconds(3));
     if (fut_status == std::future_status::timeout) {
         s.Halt();
-        return IEXIT;
+        return CPU::IEXIT;
     } else {
         return fut.get();
     }
@@ -66,27 +66,27 @@ TEST_F(AssemblerTest, Good) {
     
     const Word words[] = {
             // op1
-            ILOADR, 1, 2,
-            ILOAD, 1, 1,
-            IADD,
-            ILOADR, 0, 1,
-            IMULTIPLY,
-            ISTORE, 2, 64,
-            ILOADM, 64, 1,
-            IDIVIDE,
-            ILOAD, 3, 1,
-            ISUBTRACT,
-            IBRANCHR, 2,
+            CPU::CPU::ILOADR, 1, 2,
+            CPU::CPU::ILOAD, 1, 1,
+            CPU::IADD,
+            CPU::CPU::ILOADR, 0, 1,
+            CPU::IMULTIPLY,
+            CPU::ISTORE, 2, 64,
+            CPU::CPU::ILOADM, 64, 1,
+            CPU::IDIVIDE,
+            CPU::CPU::ILOAD, 3, 1,
+            CPU::ISUBTRACT,
+            CPU::IBRANCHR, 2,
             
             // main
-            ILOADR, PC, 0,
-            ILOAD, 15, 1,
-            IADD,
-            ILOADR, 0, 1,
-            ILOAD, 5, 0,
-            IBRANCHX, 0,
-            ISTORER, 0, 64,
-            IEXIT
+            CPU::CPU::ILOADR, CPU::PC, 0,
+            CPU::CPU::ILOAD, 15, 1,
+            CPU::IADD,
+            CPU::CPU::ILOADR, 0, 1,
+            CPU::CPU::ILOAD, 5, 0,
+            CPU::IBRANCHX, 0,
+            CPU::ISTORER, 0, 64,
+            CPU::IEXIT
     };
     ASSERT_THAT(p.Words(), ElementsAreArray(words, sizeof(words)/sizeof(words[0])));
     ASSERT_THAT(p.EntryAddress(), Eq(24));
