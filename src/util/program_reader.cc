@@ -45,7 +45,7 @@ const Error ProgramReader::Read(std::istream& is, Program *program) {
         }
         Word w = MakeWord(bytes);
         program->AddWord(w);
-        LOG("Read program word: 0x%08X", w);
+        LOG("Read program word (%d): 0x%08X", program->Words().size(), w);
     } while (is);
 
     LOG("Done reading program from stream");
