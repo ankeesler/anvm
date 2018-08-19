@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "symbol_table.h"
@@ -25,6 +26,9 @@ static std::map<std::string, std::pair<Word, int>> instruction_map = {
 
 void SymbolTablePopulator::OnStart() {
     ResetState();
+    std::ostringstream oss;
+    oss << *st_;
+    LOG("Start. Symbol table: %s", oss.str().c_str());
 }
 
 void SymbolTablePopulator::OnError(const std::string& s, int line_num) {
@@ -73,6 +77,7 @@ void SymbolTablePopulator::OnInstruction(const std::string& name, int line_num) 
     state_.expected_args = instruction_info.second;
     state_.actual_args = 0;
     state_.function->words.push_back(state_.instruction);
+    state_.address++;
 }
 
 void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int line_num) {
@@ -144,7 +149,7 @@ void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int
 
     if (type == Parser::Handler::SYMBOL) {
         w = 0; // linker fills in later
-        st_->AddSymbol(Symbol(name, false, words->size(), Symbol::FUNCTION));
+        st_->AddSymbol(Symbol(name, false, state_.address, Symbol::FUNCTION));
     } else {
         ConvertStringToWord(name, &w);
     }
@@ -152,6 +157,7 @@ void SymbolTablePopulator::OnArg(enum ArgType type, const std::string& name, int
     if (++state_.actual_args == state_.expected_args) {
         state_.instruction = IEXIT;
     }
+    state_.address++;
 }
 
 void SymbolTablePopulator::OnEnd() {
@@ -161,6 +167,9 @@ void SymbolTablePopulator::OnEnd() {
         state_.errors.push_back(e);
         return;
     }
+    std::ostringstream oss;
+    oss << *st_;
+    LOG("End. Symbol table: %s", oss.str().c_str());
 }
 
 void SymbolTablePopulator::ResetState() {
@@ -170,6 +179,7 @@ void SymbolTablePopulator::ResetState() {
     state_.instruction = IEXIT;
     state_.expected_args = 0;
     state_.actual_args = 0;
+    state_.address = 0;
 }
 
 bool SymbolTablePopulator::GetLoadInstruction(enum Parser::Handler::ArgType type, int line_num, Word *w) {

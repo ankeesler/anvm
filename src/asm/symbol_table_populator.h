@@ -32,6 +32,8 @@ class SymbolTablePopulator : public Parser::Handler {
             Word instruction;
             int expected_args;
             int actual_args;
+
+            Word address;
         };
 
         void ResetState();

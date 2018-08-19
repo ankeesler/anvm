@@ -42,10 +42,14 @@ class SymbolTable {
 
         Symbol *AddSymbol(const Symbol& symbol);
 
+        friend std::ostream& operator<<(std::ostream& os, const SymbolTable& st);
+
     private:
         Log *log_;
         std::vector<std::string> names_;
         std::map<std::string, std::vector<Symbol*>> symbols_;
 };
+
+std::ostream& operator<<(std::ostream& os, const SymbolTable& st);
 
 #endif // ANVM_SRC_ASSEMBLER_SYMBOL_TABLE_H_

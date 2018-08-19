@@ -38,3 +38,19 @@ Symbol *SymbolTable::AddSymbol(const Symbol& symbol) {
 
     return s;
 }
+
+std::ostream& operator<<(std::ostream& os, const SymbolTable& st) {
+    os << "-----SYMBOL TABLE-----" << std::endl;
+    for (const std::string& name : st.names_) {
+        const std::vector<Symbol*>& symbols = st.symbols_.at(name);
+        os << name << ":" << std::endl;
+        for (const Symbol *symbol : symbols) {
+            os << "  ";
+            os << "resolved=" << (symbol->resolved ? "y" : "n") << " ";
+            os << "address=" << symbol->address << " ";
+            os << "size=" << symbol->words.size() << " ";
+            os << std::endl;
+        }
+    }
+    return os;
+}
