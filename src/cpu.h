@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <iostream>
+#include <atomic>
 
 typedef int32_t Word;
 #define MAX_WORD INT32_MAX
@@ -12,7 +13,8 @@ typedef int32_t Word;
 #define STATUS_DIVZERO ((Word)2)
 #define STATUS_BADACCESS ((Word)4)
 #define STATUS_BADREGISTER ((Word)8)
-#define STATUS_FAILURE (STATUS_UNKNOWNI | STATUS_DIVZERO | STATUS_BADACCESS | STATUS_BADREGISTER)
+#define STATUS_HALTED ((Word)16)
+#define STATUS_FAILURE (STATUS_UNKNOWNI | STATUS_DIVZERO | STATUS_BADACCESS | STATUS_BADREGISTER | STATUS_HALTED)
 
 #define SP ((Word)-2)
 #define PC ((Word)-3)
@@ -84,6 +86,7 @@ class CPU {
         }
 
         void Run();
+        void Halt();
 
     private:
         bool CheckBadAccess(Word address);
@@ -113,7 +116,7 @@ class CPU {
 
         Word pc_;
         Word sp_;
-        Word sr_;
+        std::atomic<Word> sr_;
         Word *grs_;
         Word gr_count_;
         Word *mem_;

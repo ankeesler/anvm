@@ -1,3 +1,6 @@
+#include <thread>
+#include <future>
+
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "src/cpu.h"
@@ -418,4 +421,24 @@ TEST_F(SingleCPUTest, EntryAddress) {
     EXPECT_EQ(system_->Run(p), 0);
     Word r = cpu_->ReadGR(0);
     EXPECT_EQ(3, r);
+}
+
+TEST_F(SingleCPUTest, Halt) {
+    // infinite loop...
+    Program p(
+            IBRANCHX, 0,
+            IEXIT
+            );
+
+    std::promise<Word> prom;
+    std::thread thread([&]() { prom.set_value(system_->Run(p)); });
+    thread.detach();
+    std::future<Word> fut = prom.get_future();
+    std::future_status fut_status = fut.wait_for(std::chrono::seconds(1));
+    EXPECT_EQ(fut_status, std::future_status::timeout);
+    system_->Halt();
+    fut_status = fut.wait_for(std::chrono::seconds(1));
+    EXPECT_EQ(fut_status, std::future_status::ready);
+    Word status = fut.get();
+    EXPECT_EQ(status, STATUS_HALTED);
 }

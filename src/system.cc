@@ -26,3 +26,7 @@ Word System::Run(const Program& p) {
     // Check status.
     return cpu_->ReadSR();
 }
+
+void System::Halt() {
+    cpu_->Halt();
+}

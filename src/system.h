@@ -9,6 +9,7 @@ class System {
         System(CPU *cpu) : cpu_(cpu) { }
 
         Word Run(const Program& p);
+        void Halt();
 
     private:
         CPU *cpu_;

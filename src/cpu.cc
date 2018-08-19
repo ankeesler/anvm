@@ -62,6 +62,10 @@ void CPU::Run() {
     }
 }
 
+void CPU::Halt() {
+    sr_ |= STATUS_HALTED;
+}
+
 bool CPU::CheckBadAccess(Word address) {
     if (address >= MemSize()) {
         sr_ |= STATUS_BADACCESS;
