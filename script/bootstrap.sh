@@ -2,7 +2,8 @@
 
 set -e
 
-# This script also needs: curl, g++, sha256sum on Linux, gdb, unzip
+apt-get update
+apt-get install curl g++ unzip -y
 
 scriptname="bazel-0.16.0-installer-linux-x86_64.sh"
 script="https://github.com/bazelbuild/bazel/releases/download/0.16.0/$scriptname"
@@ -20,4 +21,5 @@ if [[ "$(echo $shaoutput | awk '{print $1}')" != "$(sha256sum $scriptname | awk 
   exit 1
 fi
 
-$scriptname --user
+chmod +x $scriptname
+./$scriptname --user
