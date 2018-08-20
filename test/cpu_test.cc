@@ -3,6 +3,7 @@
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "program_library.h"
 #include "src/cpu.h"
 #include "src/program.h"
 #include "src/system.h"
@@ -427,11 +428,7 @@ TEST_F(SingleCPUTest, EntryAddress) {
 }
 
 TEST_F(SingleCPUTest, Halt) {
-    // infinite loop...
-    Program p(
-            CPU::IBRANCHX, 0,
-            CPU::IEXIT
-            );
+    const Program& p = ProgramLibrary::Instance().InfiniteLoop();
 
     std::promise<Word> prom;
     std::thread thread([&]() { prom.set_value(system_->Run(p)); });
